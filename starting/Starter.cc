@@ -78,6 +78,10 @@ int main(){
     // Our ModelViewProjection : multiplication of our 3 matrices
     mat4 mvp = Projection * View * Model; // Remember, matrix multiplication is the other way around
 
+    GLuint MatrixID_tri = glGetUniformLocation(programID, "MVP");
+    // Model matrix : an identity matrix (model will be at the origin)
+    mat4 mvp_tri = Projection * View * Model;
+
     // A cube has 6 faces with 2 triangles each, so this makes 6*2=12 triangles, and 12*3 vertices
     static const GLfloat g_vertex_buffer_data[] = {
         -1.0f,-1.0f,-1.0f, // triangle 1 : begin
@@ -128,9 +132,13 @@ int main(){
 
     // An array of 3 vectors which represents 3 vertices
     static const GLfloat g_vertex_buffer_data_triangle[] = {
-        -1.0f, -1.0f, 0.0f,
-        1.0f, -1.0f, 0.0f,
-        0.0f,  1.0f, 0.0f,
+        -5.0f, -5.0f, 0.0f,
+        -7.0f, -7.0f, 0.0f,
+        -8.0f,  -1.0f, 0.0f,
+    };
+
+    static const GLfloat g_color_buffer_data_tri[] = {
+        1.0f, 0.0f, 0.0f,
     };
 
     // This will identify our vertex buffer
@@ -142,10 +150,24 @@ int main(){
     // Give our vertices to OpenGL.
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
+    // This will identify our vertex buffer
+    GLuint vertexbuffer_tri;
+    // Generate 1 buffer, put the resulting identifier in vertexbuffer
+    glGenBuffers(1, &vertexbuffer_tri);
+    // The following commands will talk about our 'vertexbuffer' buffer
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_tri);
+    // Give our vertices to OpenGL.
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data_triangle), g_vertex_buffer_data_triangle, GL_STATIC_DRAW);
+
     GLuint colorbuffer;
     glGenBuffers(1, &colorbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
+
+    GLuint colorbuffer_tri;
+    glGenBuffers(1, &colorbuffer_tri);
+    glBindBuffer(GL_ARRAY_BUFFER, colorbuffer_tri);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data_tri), g_color_buffer_data_tri, GL_STATIC_DRAW);
 
 
     do{
@@ -183,10 +205,37 @@ int main(){
             (void*)0                          // array buffer offset
         );
 
-        // Draw the triangle !
+        // Draw the Cube !
         glDrawArrays(GL_TRIANGLES, 0, 12*3); // Starting from vertex 0; 3 vertices total -> 1 triangle
         glDisableVertexAttribArray(0);
+        
+        glUniformMatrix4fv(MatrixID_tri, 1, GL_FALSE, &mvp_tri[0][0]);
+        // 1st attribute buffer : vertices
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_tri);
+        glVertexAttribPointer(
+            0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+            3,                  // size
+            GL_FLOAT,           // type
+            GL_FALSE,           // normalized?
+            0,                  // stride
+            (void*)0            // array buffer offset
+        );
+        // 2nd attribute buffer : colors
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, colorbuffer_tri);
+        glVertexAttribPointer(
+            1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+            3,                                // size
+            GL_FLOAT,                         // type
+            GL_FALSE,                         // normalized?
+            0,                                // stride
+            (void*)0                          // array buffer offset
+        );
 
+        // Draw the Triangle !
+        glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+        glDisableVertexAttribArray(0);
 
         // Swap buffers
         glfwSwapBuffers(window);
