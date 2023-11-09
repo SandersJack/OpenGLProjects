@@ -6,6 +6,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+GLFWwindow* window;
+
+#include "Controls.hh"
+
 using namespace glm;
 
 #include "LoadShaders.hh"
@@ -25,7 +29,6 @@ int main(){
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // We don't want the old OpenGL 
 
     // Open a window and create its OpenGL context
-    GLFWwindow* window; // (In the accompanying source code, this variable is global for simplicity)
     window = glfwCreateWindow( 1024, 768, "Learning", NULL, NULL);
     if( window == NULL ){
         fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
@@ -154,7 +157,7 @@ int main(){
     GLuint vertexbuffer_tri;
     // Generate 1 buffer, put the resulting identifier in vertexbuffer
     glGenBuffers(1, &vertexbuffer_tri);
-    // The following commands will talk about our 'vertexbuffer' buffer
+    // The fowllowing commands will talk about our 'vertexbuffer' buffer
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_tri);
     // Give our vertices to OpenGL.
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data_triangle), g_vertex_buffer_data_triangle, GL_STATIC_DRAW);
@@ -170,6 +173,8 @@ int main(){
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data_tri), g_color_buffer_data_tri, GL_STATIC_DRAW);
 
 
+    Controls *control = Controls::GetInstance();
+
     do{
         // Clear the screen.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -177,9 +182,16 @@ int main(){
         // Use our shader
         glUseProgram(programID);
 
+        // Compute the MVP matrix from keyboard and mouse input
+		control->computeMatricesFromInputs();
+		glm::mat4 ProjectionMatrix = control->getProjectionMatrix();
+		glm::mat4 ViewMatrix = control->getViewMatrix();
+		glm::mat4 ModelMatrix = glm::mat4(1.0);
+		glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+
         // Send our transformation to the currently bound shader, in the "MVP" uniform
         // This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
-        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
         // 1st attribute buffer : vertices
         glEnableVertexAttribArray(0);
@@ -209,6 +221,7 @@ int main(){
         glDrawArrays(GL_TRIANGLES, 0, 12*3); // Starting from vertex 0; 3 vertices total -> 1 triangle
         glDisableVertexAttribArray(0);
         
+        /*
         glUniformMatrix4fv(MatrixID_tri, 1, GL_FALSE, &mvp_tri[0][0]);
         // 1st attribute buffer : vertices
         glEnableVertexAttribArray(0);
@@ -236,7 +249,7 @@ int main(){
         // Draw the Triangle !
         glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
         glDisableVertexAttribArray(0);
-
+        */
         // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
