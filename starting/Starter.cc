@@ -13,6 +13,7 @@ GLFWwindow* window;
 using namespace glm;
 
 #include "LoadShaders.hh"
+#include "Obj.hh"
 
 int main(){
     glewExperimental = true; // Needed for core profile
@@ -63,6 +64,7 @@ int main(){
     // Only during the initialisation
     GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
+    /*
     float width = 4.0f;
     float height = 3.0f;
 
@@ -171,6 +173,25 @@ int main(){
     glGenBuffers(1, &colorbuffer_tri);
     glBindBuffer(GL_ARRAY_BUFFER, colorbuffer_tri);
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data_tri), g_color_buffer_data_tri, GL_STATIC_DRAW);
+    */
+    Obj *cube = new Obj("Cube");
+    
+
+    bool res = cube->LoadOBJ("/home/jack/Code/Forces/starting/objects/Cube.obj");
+
+    vector<glm::vec3>  vertices = cube->GetVertices();
+    vector<glm::vec2>  uvs = cube->GetUvs();
+
+    // Load it into a VBO
+	GLuint vertexbuffer;
+	glGenBuffers(1, &vertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+
+	GLuint uvbuffer;
+	glGenBuffers(1, &uvbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
 
 
     Controls *control = Controls::GetInstance();
@@ -205,6 +226,18 @@ int main(){
             (void*)0            // array buffer offset
         );
 
+        // 2nd attribute buffer : UVs
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+		glVertexAttribPointer(
+			1,                                // attribute
+			2,                                // size
+			GL_FLOAT,                         // type
+			GL_FALSE,                         // normalized?
+			0,                                // stride
+			(void*)0                          // array buffer offset
+		);
+        /*
         // 2nd attribute buffer : colors
         glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
@@ -216,10 +249,11 @@ int main(){
             0,                                // stride
             (void*)0                          // array buffer offset
         );
-
+        */
         // Draw the Cube !
-        glDrawArrays(GL_TRIANGLES, 0, 12*3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+        glDrawArrays(GL_TRIANGLES, 0, vertices.size()); // Starting from vertex 0; 3 vertices total -> 1 triangle
         glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
         
         /*
         glUniformMatrix4fv(MatrixID_tri, 1, GL_FALSE, &mvp_tri[0][0]);
