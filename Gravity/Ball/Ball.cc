@@ -87,6 +87,10 @@ int main() {
     Controls *control = Controls::GetInstance();
 	control->SetWindow(window);
 
+	control->SetEnableCursor(false);
+	control->SetEnableUpDown(false);
+	control->SetEnableLeftRight(false);
+
 	int spawnedBalls = 0;
 	do {
 

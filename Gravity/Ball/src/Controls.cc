@@ -44,9 +44,11 @@ void Controls::computeMatricesFromInputs(){
     // Reset mouse position for next frame
 	glfwSetCursorPos(fWindow, 1024/2, 768/2);
 
-    // Compute new orientation
-	fHorizontalAngle += fMouseSpeed * float(1024/2 - xpos );
-	fVerticalAngle   += fMouseSpeed * float( 768/2 - ypos );
+	if(fEnabledCursor){
+		// Compute new orientation
+		fHorizontalAngle += fMouseSpeed * float(1024/2 - xpos );
+		fVerticalAngle   += fMouseSpeed * float( 768/2 - ypos );
+	}
 
     // Direction : Spherical coordinates to Cartesian coordinates conversion
 	glm::vec3 direction(
@@ -66,19 +68,19 @@ void Controls::computeMatricesFromInputs(){
 	glm::vec3 up = glm::cross( right, direction );
     
     // Move forward
-	if (glfwGetKey(fWindow, GLFW_KEY_UP ) == GLFW_PRESS){
+	if (glfwGetKey(fWindow, GLFW_KEY_UP ) == GLFW_PRESS && fEnabledUpDown){
 		fPosition += direction * deltaTime * fSpeed;
 	}
 	// Move backward
-	if (glfwGetKey( fWindow, GLFW_KEY_DOWN ) == GLFW_PRESS){
+	if (glfwGetKey( fWindow, GLFW_KEY_DOWN ) == GLFW_PRESS && fEnabledUpDown){
 		fPosition -= direction * deltaTime * fSpeed;
 	}
 	// Strafe right
-	if (glfwGetKey( fWindow, GLFW_KEY_RIGHT ) == GLFW_PRESS){
+	if (glfwGetKey( fWindow, GLFW_KEY_RIGHT ) == GLFW_PRESS && fEnabledLeftRight){
 		fPosition += right * deltaTime * fSpeed;
 	}
 	// Strafe left
-	if (glfwGetKey( fWindow, GLFW_KEY_LEFT ) == GLFW_PRESS){
+	if (glfwGetKey( fWindow, GLFW_KEY_LEFT ) == GLFW_PRESS && fEnabledLeftRight){
 		fPosition -= right * deltaTime * fSpeed;
 	}
 

@@ -26,6 +26,10 @@ class Controls
         glm::mat4 fViewMatrix;
         glm::mat4 fProjectionMatrix;
 
+        bool fEnabledCursor = true;
+        bool fEnabledUpDown = true;
+        bool fEnabledLeftRight = true;
+
     public:
         Controls(/* args */);
         ~Controls();
@@ -42,6 +46,10 @@ class Controls
         }
 
         void SetWindow(GLFWwindow* wind){ fWindow = wind;}
+
+        void SetEnableCursor(bool val){fEnabledCursor = val;}
+        void SetEnableUpDown(bool val){fEnabledUpDown = val;}
+        void SetEnableLeftRight(bool val){fEnabledLeftRight = val;}
 
         
 };
