@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <vector>
+#include <random>
 #include <algorithm>
 
 #include <GL/glew.h>
@@ -28,7 +29,7 @@ struct Ball{
 
 };
 
-const int maxnumBalls = 1;
+const int maxnumBalls = 10;
 Ball BallContainer[maxnumBalls];
 
 const char* glErrorToString(GLenum error) {
@@ -100,6 +101,12 @@ template <typename T> int sgn(T val) {
 
 
 int main() {
+
+	// Use a random device to seed the random number generator
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::uniform_real_distribution<float> Distribution_11(-1.0f, 1.0f);
 
 	OGLManager *oglM = OGLManager::GetInstance();
 	oglM->Init(1024, 768);
@@ -203,7 +210,7 @@ int main() {
 	control->SetEnableLeftRight(false);
 	
 	double damping = 0.9;
-	
+	double halfboundsize = 0.5 * 28 - 0.5 * 2;
 
 	checkGLError("control");
 	int spawnedBalls = 0;
@@ -235,18 +242,18 @@ int main() {
 		
 
 		
-		int newBalls = 1;
+		int newBalls = maxnumBalls;
 		if(spawnedBalls < maxnumBalls) {
 			for(int i=0; i<newBalls; i++){
 
 				glm::vec3 maindir = glm::vec3(0.0f, 5.0f, 0.0f);
 
-				
-				BallContainer[i].pos = glm::vec3(0,0,-29.9f);
+				//double rand_01 = ((double) rand() / (RAND_MAX));
+				BallContainer[i].pos = glm::vec3(Distribution_11(gen) * halfboundsize, Distribution_11(gen) * halfboundsize,-29.9f);
 
 				BallContainer[i].speed = maindir;
 
-				BallContainer[i].	r = rand() % 256;
+				BallContainer[i].r = rand() % 256;
 				BallContainer[i].g = rand() % 256;
 				BallContainer[i].b = rand() % 256;
 				BallContainer[i].a = 255;
@@ -264,7 +271,7 @@ int main() {
 		for(int i=0; i<maxnumBalls; i++){
 			Ball& p = BallContainer[i];
 			
-			double halfboundsize = 0.5 * 28 - 0.5 * 2;
+			
 			
 			// Check bounding box in y
 			if(abs(p.pos.y) > halfboundsize){
@@ -292,7 +299,6 @@ int main() {
 
 			BallCount++;
 		}
-
 
 		glBindBuffer(GL_ARRAY_BUFFER, balls_position_buffer);
 		glBufferData(GL_ARRAY_BUFFER, maxnumBalls * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW); 
@@ -322,12 +328,9 @@ int main() {
 
 		glBindVertexArray(VertexArrayID);
 
-		checkGLError("Plot");
 		// 1rst attribute buffer : vertices
 		glEnableVertexAttribArray(0);
-		checkGLError("glEnableVertexAttribArray");
 		glBindBuffer(GL_ARRAY_BUFFER, b_vertex_buffer);
-		checkGLError("glBindBuffer");
 		glVertexAttribPointer(
 			0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
 			3,                  // size
@@ -336,7 +339,6 @@ int main() {
 			0,                  // stride
 			(void*)0            // array buffer offset
 		);
-		checkGLError("glVertexAttribPointer");
         // 2nd attribute buffer : positions of particles' centers
 		glEnableVertexAttribArray(1);
 		glBindBuffer(GL_ARRAY_BUFFER, balls_position_buffer);
