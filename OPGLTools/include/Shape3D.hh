@@ -23,7 +23,7 @@ class Shape3D {
         void render3DShape(GLuint shaderProgram, GLuint VAO, const glm::mat4& modelViewProjection, 
             const glm::vec3& shapePosition, GLuint vertexSize);
 
-        void generateCircleVertices(GLfloat* vertices, float radius, int numPoints);
+        void generateCircleVertices(GLfloat* vertices, float radius, int numPoints, float height);
 
     private:
 

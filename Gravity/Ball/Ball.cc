@@ -165,7 +165,7 @@ int main() {
     GLfloat* g_vertex_buffer_data = new GLfloat[numPoints * 3];
 
     // Generate circle vertices
-    shapeTools->generateCircleVertices(g_vertex_buffer_data, radius, numPoints);
+    shapeTools->generateCircleVertices(g_vertex_buffer_data, radius, numPoints, 0.0);
 
 	GLuint b_vertex_buffer;
 	glGenBuffers(1, &b_vertex_buffer);
