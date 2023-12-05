@@ -94,7 +94,9 @@ void render3DShape(GLuint shaderProgram, GLuint VAO, const glm::mat4& modelViewP
     //checkGLError("render3DShape");
 }
 
-
+template <typename T> int sgn(T val) {
+    return (T(0) < val) - (val < T(0));
+}
 
 
 int main() {
@@ -240,11 +242,11 @@ int main() {
 				glm::vec3 maindir = glm::vec3(0.0f, 5.0f, 0.0f);
 
 				
-				BallContainer[i].pos = glm::vec3(0,0,-20.0f);
+				BallContainer[i].pos = glm::vec3(0,0,-29.9f);
 
 				BallContainer[i].speed = maindir;
 
-				BallContainer[i].r = rand() % 256;
+				BallContainer[i].	r = rand() % 256;
 				BallContainer[i].g = rand() % 256;
 				BallContainer[i].b = rand() % 256;
 				BallContainer[i].a = 255;
@@ -262,9 +264,11 @@ int main() {
 		for(int i=0; i<maxnumBalls; i++){
 			Ball& p = BallContainer[i];
 			
-			double max_y = -9;//-25*sin(glm::pi<float>()/8
-
-			if(p.pos.y < max_y){
+			double halfboundsize = 0.5 * 28 - 0.5 * 2;
+			
+			// Check bounding box in y
+			if(abs(p.pos.y) > halfboundsize){
+				p.pos.y = halfboundsize * sgn(p.pos.y);
 				p.speed *= -1 * damping;
 			}
 
