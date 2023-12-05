@@ -42,7 +42,7 @@ void Controls::computeMatricesFromInputs(){
 	glfwGetCursorPos(fWindow, &xpos, &ypos);
 
     // Reset mouse position for next frame
-	glfwSetCursorPos(fWindow, 1024/2, 768/2);
+	//glfwSetCursorPos(fWindow, 1024/2, 768/2);
 
 	if(fEnabledCursor){
 		// Compute new orientation

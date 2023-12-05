@@ -103,6 +103,148 @@ void checkGLError(const char* functionName) {
     }
 }
 
+float damping = 0.9f;
+bool isDragging = false;
+double lastMouseX = 0.0;
+
+const float lowerLimit = 0.0f;  // Set your lower limit
+const float upperLimit = 1.0f;   // Set your upper limit
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (action == GLFW_PRESS) {
+            isDragging = true;
+            glfwGetCursorPos(window, &lastMouseX, NULL);
+        } else if (action == GLFW_RELEASE) {
+            isDragging = false;
+        }
+    }
+}
+
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (isDragging) {
+        double deltaX = xpos - lastMouseX;
+		damping += static_cast<float>(deltaX) * 0.01f; // Adjust the sensitivity as needed
+        if (damping < lowerLimit) {
+            damping = lowerLimit;
+        } else if (damping > upperLimit) {
+            damping = upperLimit;
+        }
+        lastMouseX = xpos;
+    }
+}
+
+GLuint modelLocation;
+GLuint colorLocation;
+GLuint vao_slider;
+
+GLuint sliderShaderProgram;
+
+void init_slider() {
+
+	sliderShaderProgram = LoadShaders( "Shaders/slider.vs", "Shaders/slider.fs" );
+
+	// Use the shader program
+    glUseProgram(sliderShaderProgram);
+
+    // Set uniform locations
+    modelLocation = glGetUniformLocation(sliderShaderProgram, "model");
+    colorLocation = glGetUniformLocation(sliderShaderProgram, "color");
+
+    // Set initial model matrix and color uniforms
+    glm::mat4 modelMatrix = glm::mat4(1.0f);
+    glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelMatrix[0][0]);
+
+    glm::vec3 sliderColor = glm::vec3(0.2f, 0.2f, 0.8f);
+    glUniform3fv(colorLocation, 1, &sliderColor[0]);
+
+    // Set up vertex array and buffer
+    glGenVertexArrays(1, &vao_slider);
+    glBindVertexArray(vao_slider);
+
+    GLfloat vertices[] = {
+        0.0f, -0.1f, -25.f,
+        1.0f, -0.1f, -25.f,
+        1.0f,  0.1f, -25.f,
+        0.0f,  0.1f, -25.f
+    };
+
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void drawSlider() {
+    // Set the shader program
+    glUseProgram(sliderShaderProgram);
+
+    // Set the model matrix (for transformations)
+    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(damping-1.0f, 0.0f, 0.0f));
+    glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelMatrix[0][0]);
+
+    // Set the color (you can update this based on your requirements)
+    glm::vec3 sliderColor = glm::vec3(0.2f, 0.2f, 0.8f);
+    glUniform3fv(colorLocation, 1, &sliderColor[0]);
+
+    // Draw the slider using two triangles to form a quad
+    glBindVertexArray(vao_slider);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // Change to GL_TRIANGLE_FAN
+    glBindVertexArray(0);
+
+    // Unset the shader program after rendering
+    glUseProgram(0);
+}
+
+GLFWwindow* sliderWindow;
+
+void initSliderWindow() {
+
+    // Create a GLFW window for the slider
+    sliderWindow = glfwCreateWindow(400, 200, "Slider Window", NULL, NULL);
+    if (!sliderWindow) {
+        std::cerr << "Failed to create GLFW slider window" << std::endl;
+        glfwTerminate();
+        return;
+    }
+
+	glewExperimental = GL_TRUE;
+    if (glewInit() != GLEW_OK) {
+        std::cerr << "Failed to initialize GLEW for slider window" << std::endl;
+        glfwTerminate();
+        return;
+    }
+
+    // Make the window's context current
+    glfwMakeContextCurrent(sliderWindow);
+
+    // Set GLFW mouse button callback
+    glfwSetMouseButtonCallback(sliderWindow, mouse_button_callback);
+    // Set GLFW cursor position callback
+    glfwSetCursorPosCallback(sliderWindow, cursor_position_callback);
+}
+
+void cleanupSliderWindow() {
+    glfwDestroyWindow(sliderWindow);
+    glfwTerminate();
+}
+
+void drawSliderWindow() {
+	glfwMakeContextCurrent(sliderWindow);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	drawSlider();
+
+	glfwSwapBuffers(sliderWindow);
+	glfwPollEvents();
+}
+
 
 
 template <typename T> int sgn(T val) {
@@ -216,17 +358,23 @@ int main() {
 	control->SetEnableCursor(false);
 	control->SetEnableUpDown(false);
 	control->SetEnableLeftRight(false);
+
 	
-	double damping = 0.9;
-	glm::vec3 halfboundsize = glm::vec3(0.65 * 28 - 2*radius, 0.5 * 28 - 2*radius, 0.0f); ;
+	initSliderWindow();
+	init_slider();
+	
+	//double damping = 0.9	;
+	glm::vec3 halfboundsize = glm::vec3(0.65 * 28 - 2*radius, 0.5 * 28 - 2*radius, 0.0f); 
 
 	checkGLError("control");
 	int spawnedBalls = 0;
 	do {
+		glfwMakeContextCurrent(window);
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		glEnable(GL_DEPTH_TEST);
+
 		
 
 		control->computeMatricesFromInputs();
@@ -243,9 +391,6 @@ int main() {
 		double currentTime = glfwGetTime();
 		double delta = currentTime - lastTime;
 		lastTime = currentTime;
-		
-		
-
 		
 		int newBalls = maxnumBalls;
 		if(spawnedBalls < maxnumBalls) {
@@ -321,7 +466,7 @@ int main() {
 
 			BallCount++;
 		}
-
+		checkGLError("p");
 		glBindBuffer(GL_ARRAY_BUFFER, balls_position_buffer);
 		glBufferData(GL_ARRAY_BUFFER, maxnumBalls * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW); 
 		glBufferSubData(GL_ARRAY_BUFFER, 0, BallCount * sizeof(GLfloat) * 4, g_balls_position_size_data);
@@ -403,10 +548,14 @@ int main() {
 		// Swap buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-	
+		
+		glClear(GL_COLOR_BUFFER_BIT);
+		drawSliderWindow();
+		checkGLError("slide");
+		
 	} 
 	while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-		   glfwWindowShouldClose(window) == 0 );
+		   (glfwWindowShouldClose(window) == 0  && !glfwWindowShouldClose(sliderWindow)));
 	
 	delete[] g_balls_position_size_data;
 
@@ -420,9 +569,10 @@ int main() {
 	glDeleteProgram(programID);
 	glDeleteVertexArrays(1, &VertexArrayID);
 
-	
 	// Close OpenGL window and terminate GLFW
 	glfwTerminate();
+
+	cleanupSliderWindow();
     
 	return -1;
 }

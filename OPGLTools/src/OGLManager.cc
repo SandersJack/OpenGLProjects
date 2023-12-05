@@ -74,11 +74,11 @@ void OGLManager::Init(int windowX, int windowY){
     // Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(fWindow, GLFW_STICKY_KEYS, GL_TRUE);
     // Hide the mouse and enable unlimited mouvement
-    glfwSetInputMode(fWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetInputMode(fWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     
     // Set the mouse at the center of the screen
     glfwPollEvents();
-    glfwSetCursorPos(fWindow, 1024/2, 768/2);
+    //glfwSetCursorPos(fWindow, 1024/2, 768/2);
 
     // Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
