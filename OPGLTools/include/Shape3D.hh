@@ -25,6 +25,8 @@ class Shape3D {
 
         void generateCircleVertices(GLfloat* vertices, float radius, int numPoints, float height);
 
+        void generateQuadVertices(GLfloat* vertices, float width, float height, float depth);
+
     private:
 
         static Shape3D *fInstance;

@@ -93,27 +93,20 @@ int main() {
     GLuint VAO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
+	GLfloat *quadvertices = new GLfloat[4 * 3];
 
-    // Vertex Buffer Object (VBO)
-	/* square
-    GLfloat vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		-0.5f,  0.5f, 0.0f,
-		0.5f,  0.5f, 0.0f,
-    };
-	*/ 
-	GLfloat vertices[] = {
-        -.65f, -0.5f, 0.0f,
-		.65f, -0.5f, 0.0f,
-		-.65f,  0.5f, 0.0f,
-		.65f,  0.5f, 0.0f,
-    };
+	shapeTools->generateQuadVertices(quadvertices, 1.30f, 1.0f, 0.0f);
+
+	GLfloat vertices[12];
+	for(int i; i<12; i++){
+		vertices[i] = quadvertices[i];
+	}
+
 	// Scale factor
 	float scaleFactor = 28.0f;
 
 	// Scale the rectangle by multiplying each coordinate by the scaleFactor
-	for (int i = 0; i < sizeof(vertices) / sizeof(vertices[0]); ++i) {
+	for (int i = 0; i < 12; ++i) {
 		vertices[i] *= scaleFactor;
 	}
 
@@ -143,17 +136,7 @@ int main() {
 
     // fragment shader
 	GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
-
-	/*
-	int numPoints = 4;
-	static const GLfloat g_vertex_buffer_data[] = { 
-		 -0.5f, -0.5f, 0.0f,
-		  0.5f, -0.5f, 0.0f,
-		 -0.5f,  0.5f, 0.0f,
-		  0.5f,  0.5f, 0.0f,
-	};
-	*/
-
+	
 	static GLfloat* g_balls_position_size_data = new GLfloat[maxnumBalls * 4];
 	static GLubyte* g_balls_color_data         = new GLubyte[maxnumBalls * 4];
 	
@@ -216,7 +199,7 @@ int main() {
 
 		glm::mat4 ViewProjectionMatrix2 = ProjectionMatrix * ViewMatrix;
 
-		shapeTools->render3DShape(ShapeshaderProgram, VAO, ViewProjectionMatrix, glm::vec3(0.0f, 0.0f, -30.0f), sizeof(vertices));
+		shapeTools->render3DShape(ShapeshaderProgram, VAO, ViewProjectionMatrix, glm::vec3(0.0f, 0.0f, -30.0f), 12);
 		
 		double currentTime = glfwGetTime();
 		double delta = currentTime - lastTime;

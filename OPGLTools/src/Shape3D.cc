@@ -54,3 +54,17 @@ void Shape3D::generateCircleVertices(GLfloat* vertices, float radius, int numPoi
     }
 }
 
+void Shape3D::generateQuadVertices(GLfloat* vertices, float width, float height, float depth) {
+    float halfWidth = width / 2.0f;
+    float halfHeight = height / 2.0f;
+
+    for (int i = 0; i < 4; ++i) {
+        float x = ((i % 2 == 0) ? -1 : 1) * halfWidth;
+        float y = ((i / 2 == 0) ? -1 : 1) * halfHeight;
+
+        vertices[i * 3] = x;
+        vertices[i * 3 + 1] = y;
+        vertices[i * 3 + 2] = depth / 2.0f;  // Adjust for depth
+    }
+}
+
