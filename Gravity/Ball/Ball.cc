@@ -19,6 +19,7 @@ using namespace glm;
 #include "LoadShaders.hh"
 #include "Controls.hh"
 #include "OGLManager.hh"
+#include "Shape3D.hh"
 
 // CPU representation of a particle
 struct Ball{
@@ -64,55 +65,10 @@ void checkGLError(const char* functionName) {
 }
 
 
-// Function to render the 3D shape
-void render3DShape(GLuint shaderProgram, GLuint VAO, const glm::mat4& modelViewProjection, const glm::vec3& shapePosition, 
-	GLuint vertexSize) {
-    
-	glUseProgram(shaderProgram);
-	checkGLError("glUseProgram");
-
-    // Set the shape position using a uniform variable
-    GLuint shapePositionLocation = glGetUniformLocation(shaderProgram, "shapePosition");
-    glUniform3fv(shapePositionLocation, 1, &shapePosition[0]);
-	checkGLError("glUniform3fv");
-
-    // Set the model-view-projection matrix
-    GLuint mvpLocation = glGetUniformLocation(shaderProgram, "modelViewProjection");
-    glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, &modelViewProjection[0][0]);
-	checkGLError("glUniformMatrix4fv");
-
-    glBindVertexArray(VAO);
-	checkGLError("glBindVertexArray");
-
-    // Draw the 3D shape
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, vertexSize/3);  // Assuming a simple quad for this example
-	checkGLError("glDrawArrays");
-
-    glBindVertexArray(0);
-	checkGLError("glBindVertexArray");
-
-    // Check for OpenGL errors after drawing
-    //checkGLError("render3DShape");
-}
 
 template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
-
-void generateCircleVertices(GLfloat* vertices, float radius, int numPoints) {
-    for (int i = 0; i < numPoints; ++i) {
-        float theta = 2.0f * glm::pi<float>() * i / numPoints;
-        float x = radius * std::cos(theta);
-        float y = radius * std::sin(theta);
-		float z = 0.0f;
-
-        // Add the vertex coordinates to the array
-        vertices[i * 3] = x;
-        vertices[i * 3 + 1] = y;
-		vertices[i * 3 + 2] = z;
-    }
-}
-
 
 int main() {
 
@@ -128,6 +84,8 @@ int main() {
 
 	GLFWwindow *window = oglM->GetWindow();
 
+	Shape3D *shapeTools = Shape3D::GetInstance();
+
 	// Create shader program
     GLuint ShapeshaderProgram = LoadShaders( "Shaders/border.vs", "Shaders/border.fs" );
 
@@ -135,27 +93,20 @@ int main() {
     GLuint VAO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
+	GLfloat *quadvertices = new GLfloat[4 * 3];
 
-    // Vertex Buffer Object (VBO)
-	/* square
-    GLfloat vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		-0.5f,  0.5f, 0.0f,
-		0.5f,  0.5f, 0.0f,
-    };
-	*/ 
-	GLfloat vertices[] = {
-        -.65f, -0.5f, 0.0f,
-		.65f, -0.5f, 0.0f,
-		-.65f,  0.5f, 0.0f,
-		.65f,  0.5f, 0.0f,
-    };
+	shapeTools->generateQuadVertices(quadvertices, 1.30f, 1.0f, 0.0f);
+
+	GLfloat vertices[12];
+	for(int i; i<12; i++){
+		vertices[i] = quadvertices[i];
+	}
+
 	// Scale factor
 	float scaleFactor = 28.0f;
 
 	// Scale the rectangle by multiplying each coordinate by the scaleFactor
-	for (int i = 0; i < sizeof(vertices) / sizeof(vertices[0]); ++i) {
+	for (int i = 0; i < 12; ++i) {
 		vertices[i] *= scaleFactor;
 	}
 
@@ -185,17 +136,7 @@ int main() {
 
     // fragment shader
 	GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
-
-	/*
-	int numPoints = 4;
-	static const GLfloat g_vertex_buffer_data[] = { 
-		 -0.5f, -0.5f, 0.0f,
-		  0.5f, -0.5f, 0.0f,
-		 -0.5f,  0.5f, 0.0f,
-		  0.5f,  0.5f, 0.0f,
-	};
-	*/
-
+	
 	static GLfloat* g_balls_position_size_data = new GLfloat[maxnumBalls * 4];
 	static GLubyte* g_balls_color_data         = new GLubyte[maxnumBalls * 4];
 	
@@ -207,7 +148,7 @@ int main() {
     GLfloat* g_vertex_buffer_data = new GLfloat[numPoints * 3];
 
     // Generate circle vertices
-    generateCircleVertices(g_vertex_buffer_data, radius, numPoints);
+    shapeTools->generateCircleVertices(g_vertex_buffer_data, radius, numPoints, 0.0);
 
 	GLuint b_vertex_buffer;
 	glGenBuffers(1, &b_vertex_buffer);
@@ -257,11 +198,8 @@ int main() {
 		glm::mat4 ViewProjectionMatrix = ProjectionMatrix * ViewMatrix;
 
 		glm::mat4 ViewProjectionMatrix2 = ProjectionMatrix * ViewMatrix;
-		checkGLError("Before");
 
-		render3DShape(ShapeshaderProgram, VAO, ViewProjectionMatrix, glm::vec3(0.0f, 0.0f, -30.0f), sizeof(vertices));
-		checkGLError("Before2");
-		
+		shapeTools->render3DShape(ShapeshaderProgram, VAO, ViewProjectionMatrix, glm::vec3(0.0f, 0.0f, -30.0f), 12);
 		
 		double currentTime = glfwGetTime();
 		double delta = currentTime - lastTime;
