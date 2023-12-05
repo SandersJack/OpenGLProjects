@@ -1,3 +1,3 @@
-# Forces
+# OPGLProjects
 
-A collection of scripts to visulise Forces!
+A collection of projects for OpenGL!
