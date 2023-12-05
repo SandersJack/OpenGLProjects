@@ -27,8 +27,47 @@ struct Ball{
 	unsigned char r,g,b,a; // Color
 	float size, angle, weight;
 	float cameradistance; // *Squared* distance to the camera. if dead : -1.0f
-
+	float radius;
 };
+
+bool checkBallCollision(const Ball& ball1, const Ball& ball2) {
+    // Calculate the distance between the centers of the circles
+    float distance = std::sqrt((ball1.pos.x - ball2.pos.x) * (ball1.pos.x - ball2.pos.x) +
+                               (ball1.pos.y - ball2.pos.y) * (ball1.pos.y - ball2.pos.y));
+
+    // Check if the distance is less than the sum of the radii
+    return distance < (ball1.radius + ball2.radius);
+}
+
+// Function to handle elastic collision between two circles
+void handleElasticCollision(Ball& ball1, Ball& ball2) {
+    float dx = ball2.pos.x - ball1.pos.x;
+    float dy = ball2.pos.y - ball1.pos.y;
+    float distance = std::sqrt(dx * dx + dy * dy);
+
+    // Normalized collision vector
+    float nx = dx / distance;
+    float ny = dy / distance;
+
+    // Relative velocity components
+    float relativeVelocityX = ball2.speed.x - ball1.speed.x;
+    float relativeVelocityY = ball2.speed.x - ball1.speed.y;
+
+    // Calculate relative velocity in the direction of the collision
+    float relativeSpeed = relativeVelocityX * nx + relativeVelocityY * ny;
+
+    // If circles are moving towards each other
+    if (relativeSpeed < 0) {
+        // Apply elastic collision formula
+        float impulse = (2.0f * relativeSpeed) / (1.0f / ball1.radius + 1.0f / ball2.radius);
+
+        // Update velocities
+        ball1.speed.x += impulse / ball1.radius * nx;
+        ball1.speed.y += impulse / ball1.radius * ny;
+        ball2.speed.x -= impulse / ball2.radius * nx;
+        ball2.speed.y  -= impulse / ball2.radius * ny;
+    }
+}
 
 const int maxnumBalls = 10;
 Ball BallContainer[maxnumBalls];
@@ -224,11 +263,11 @@ int main() {
 				BallContainer[i].b = rand() % 256;
 				BallContainer[i].a = 255;
 
+				BallContainer[i].radius = radius*2;
+
 				BallContainer[i].size = 2.f;
 
 				spawnedBalls++;
-
-				std::cout << "Spawned" << std::endl;
 			}
 		}
 
@@ -248,6 +287,18 @@ int main() {
 			if(abs(p.pos.x) > (halfboundsize.x)){
 				p.pos.x = (halfboundsize.x) * sgn(p.pos.x);
 				p.speed.x *= -1 * damping;
+			}
+
+			/// Check collsions on all other balls
+			if(true){
+				for(int t=0; t<maxnumBalls; t++){
+					if(i == t)
+						continue;
+					Ball& p2 = BallContainer[t];
+					if(checkBallCollision(p, p2)){
+						handleElasticCollision(p,p2);
+					}
+				}
 			}
 
 			// Simulate simple physics : gravity only, no collisions
