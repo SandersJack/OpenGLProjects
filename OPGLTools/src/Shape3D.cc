@@ -39,3 +39,18 @@ void Shape3D::render3DShape(GLuint shaderProgram, GLuint VAO, const glm::mat4& m
 
     // Check for OpenGL errors after drawing
 }
+
+void Shape3D::generateCircleVertices(GLfloat* vertices, float radius, int numPoints) {
+    for (int i = 0; i < numPoints; ++i) {
+        float theta = 2.0f * glm::pi<float>() * i / numPoints;
+        float x = radius * std::cos(theta);
+        float y = radius * std::sin(theta);
+		float z = 0.0f;
+
+        // Add the vertex coordinates to the array
+        vertices[i * 3] = x;
+        vertices[i * 3 + 1] = y;
+		vertices[i * 3 + 2] = z;
+    }
+}
+

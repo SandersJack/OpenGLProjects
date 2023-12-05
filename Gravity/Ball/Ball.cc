@@ -70,21 +70,6 @@ template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
-void generateCircleVertices(GLfloat* vertices, float radius, int numPoints) {
-    for (int i = 0; i < numPoints; ++i) {
-        float theta = 2.0f * glm::pi<float>() * i / numPoints;
-        float x = radius * std::cos(theta);
-        float y = radius * std::sin(theta);
-		float z = 0.0f;
-
-        // Add the vertex coordinates to the array
-        vertices[i * 3] = x;
-        vertices[i * 3 + 1] = y;
-		vertices[i * 3 + 2] = z;
-    }
-}
-
-
 int main() {
 
 	// Use a random device to seed the random number generator
@@ -180,7 +165,7 @@ int main() {
     GLfloat* g_vertex_buffer_data = new GLfloat[numPoints * 3];
 
     // Generate circle vertices
-    generateCircleVertices(g_vertex_buffer_data, radius, numPoints);
+    shapeTools->generateCircleVertices(g_vertex_buffer_data, radius, numPoints);
 
 	GLuint b_vertex_buffer;
 	glGenBuffers(1, &b_vertex_buffer);
