@@ -6,3 +6,5 @@ mkdir -p build
 alias make_clean="rm build/* -r"
 
 alias make="cmake -S . -B build; cmake --build build"
+
+alias Ball="./build/Ball"
