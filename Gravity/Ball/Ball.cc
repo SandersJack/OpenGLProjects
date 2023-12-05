@@ -19,6 +19,7 @@ using namespace glm;
 #include "LoadShaders.hh"
 #include "Controls.hh"
 #include "OGLManager.hh"
+#include "Shape3D.hh"
 
 // CPU representation of a particle
 struct Ball{
@@ -64,36 +65,6 @@ void checkGLError(const char* functionName) {
 }
 
 
-// Function to render the 3D shape
-void render3DShape(GLuint shaderProgram, GLuint VAO, const glm::mat4& modelViewProjection, const glm::vec3& shapePosition, 
-	GLuint vertexSize) {
-    
-	glUseProgram(shaderProgram);
-	checkGLError("glUseProgram");
-
-    // Set the shape position using a uniform variable
-    GLuint shapePositionLocation = glGetUniformLocation(shaderProgram, "shapePosition");
-    glUniform3fv(shapePositionLocation, 1, &shapePosition[0]);
-	checkGLError("glUniform3fv");
-
-    // Set the model-view-projection matrix
-    GLuint mvpLocation = glGetUniformLocation(shaderProgram, "modelViewProjection");
-    glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, &modelViewProjection[0][0]);
-	checkGLError("glUniformMatrix4fv");
-
-    glBindVertexArray(VAO);
-	checkGLError("glBindVertexArray");
-
-    // Draw the 3D shape
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, vertexSize/3);  // Assuming a simple quad for this example
-	checkGLError("glDrawArrays");
-
-    glBindVertexArray(0);
-	checkGLError("glBindVertexArray");
-
-    // Check for OpenGL errors after drawing
-    //checkGLError("render3DShape");
-}
 
 template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
@@ -127,6 +98,8 @@ int main() {
 	oglM->Init(1024, 768);
 
 	GLFWwindow *window = oglM->GetWindow();
+
+	Shape3D *shapeTools = Shape3D::GetInstance();
 
 	// Create shader program
     GLuint ShapeshaderProgram = LoadShaders( "Shaders/border.vs", "Shaders/border.fs" );
@@ -257,11 +230,8 @@ int main() {
 		glm::mat4 ViewProjectionMatrix = ProjectionMatrix * ViewMatrix;
 
 		glm::mat4 ViewProjectionMatrix2 = ProjectionMatrix * ViewMatrix;
-		checkGLError("Before");
 
-		render3DShape(ShapeshaderProgram, VAO, ViewProjectionMatrix, glm::vec3(0.0f, 0.0f, -30.0f), sizeof(vertices));
-		checkGLError("Before2");
-		
+		shapeTools->render3DShape(ShapeshaderProgram, VAO, ViewProjectionMatrix, glm::vec3(0.0f, 0.0f, -30.0f), sizeof(vertices));
 		
 		double currentTime = glfwGetTime();
 		double delta = currentTime - lastTime;
