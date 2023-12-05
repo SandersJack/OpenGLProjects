@@ -99,6 +99,20 @@ template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
+void generateCircleVertices(GLfloat* vertices, float radius, int numPoints) {
+    for (int i = 0; i < numPoints; ++i) {
+        float theta = 2.0f * glm::pi<float>() * i / numPoints;
+        float x = radius * std::cos(theta);
+        float y = radius * std::sin(theta);
+		float z = 0.0f;
+
+        // Add the vertex coordinates to the array
+        vertices[i * 3] = x;
+        vertices[i * 3 + 1] = y;
+		vertices[i * 3 + 2] = z;
+    }
+}
+
 
 int main() {
 
@@ -107,6 +121,7 @@ int main() {
     std::mt19937 gen(rd());
 
     std::uniform_real_distribution<float> Distribution_11(-1.0f, 1.0f);
+	std::uniform_real_distribution<float> Distribution_1010(-10.f, 10.f);
 
 	OGLManager *oglM = OGLManager::GetInstance();
 	oglM->Init(1024, 768);
@@ -171,20 +186,33 @@ int main() {
     // fragment shader
 	GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
 
-	static GLfloat* g_balls_position_size_data = new GLfloat[maxnumBalls * 4];
-	static GLubyte* g_balls_color_data         = new GLubyte[maxnumBalls * 4];
-
+	/*
+	int numPoints = 4;
 	static const GLfloat g_vertex_buffer_data[] = { 
 		 -0.5f, -0.5f, 0.0f,
 		  0.5f, -0.5f, 0.0f,
 		 -0.5f,  0.5f, 0.0f,
 		  0.5f,  0.5f, 0.0f,
 	};
+	*/
+
+	static GLfloat* g_balls_position_size_data = new GLfloat[maxnumBalls * 4];
+	static GLubyte* g_balls_color_data         = new GLubyte[maxnumBalls * 4];
+	
+	// Set the radius and the number of points
+    float radius = 1.f;
+    int numPoints = 100;  // You can adjust the number of points
+
+    // Allocate memory for the circle vertices
+    GLfloat* g_vertex_buffer_data = new GLfloat[numPoints * 3];
+
+    // Generate circle vertices
+    generateCircleVertices(g_vertex_buffer_data, radius, numPoints);
 
 	GLuint b_vertex_buffer;
 	glGenBuffers(1, &b_vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, b_vertex_buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (numPoints) * 3 * sizeof(GLfloat), g_vertex_buffer_data, GL_STATIC_DRAW);
 
     // The VBO containing the positions and sizes of the particles
 	GLuint balls_position_buffer;
@@ -210,7 +238,7 @@ int main() {
 	control->SetEnableLeftRight(false);
 	
 	double damping = 0.9;
-	double halfboundsize = 0.5 * 28 - 0.5 * 2;
+	glm::vec3 halfboundsize = glm::vec3(0.65 * 28 - 2*radius, 0.5 * 28 - 2*radius, 0.0f); ;
 
 	checkGLError("control");
 	int spawnedBalls = 0;
@@ -246,10 +274,10 @@ int main() {
 		if(spawnedBalls < maxnumBalls) {
 			for(int i=0; i<newBalls; i++){
 
-				glm::vec3 maindir = glm::vec3(0.0f, 5.0f, 0.0f);
+				glm::vec3 maindir = glm::vec3(Distribution_1010(gen), 5.0f, 0.0f);
 
 				//double rand_01 = ((double) rand() / (RAND_MAX));
-				BallContainer[i].pos = glm::vec3(Distribution_11(gen) * halfboundsize, Distribution_11(gen) * halfboundsize,-29.9f);
+				BallContainer[i].pos = glm::vec3(Distribution_11(gen) * halfboundsize.x, Distribution_11(gen) * halfboundsize.y,-29.9f);
 
 				BallContainer[i].speed = maindir;
 
@@ -272,11 +300,16 @@ int main() {
 			Ball& p = BallContainer[i];
 			
 			
-			
 			// Check bounding box in y
-			if(abs(p.pos.y) > halfboundsize){
-				p.pos.y = halfboundsize * sgn(p.pos.y);
-				p.speed *= -1 * damping;
+			if(abs(p.pos.y) > halfboundsize.y){
+				p.pos.y = halfboundsize.y * sgn(p.pos.y);
+				p.speed.y *= -1 * damping;
+			}
+
+			// Check bounding box in x
+			if(abs(p.pos.x) > (halfboundsize.x)){
+				p.pos.x = (halfboundsize.x) * sgn(p.pos.x);
+				p.speed.x *= -1 * damping;
 			}
 
 			// Simulate simple physics : gravity only, no collisions
@@ -311,9 +344,8 @@ int main() {
 
         glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+		checkGLError("t");
 		
-
 		// Use our shader
 		glUseProgram(programID);
 		
@@ -372,7 +404,7 @@ int main() {
 		// This is equivalent to :
 		// for(i in ParticlesCount) : glDrawArrays(GL_TRIANGLE_STRIP, 0, 4), 
 		// but faster.
-		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, BallCount);
+		glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, numPoints, BallCount);
 		
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
