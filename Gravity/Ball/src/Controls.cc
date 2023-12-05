@@ -15,7 +15,7 @@ Controls::Controls(){
     // Initial position : on +Z
     fPosition = glm::vec3( 0, 0, 5 ); 
     // Initial horizontal angle : toward -Z
-    fHorizontalAngle = 3.14f;
+    fHorizontalAngle = glm::pi<float>();
     // Initial vertical angle : none
     fVerticalAngle = 0.0f;
     // Initial Field of View
