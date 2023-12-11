@@ -25,6 +25,13 @@ using namespace glm;
 #include "Shape3D.hh"
 #include "Text2D.hh"
 
+
+
+GLuint ShapeshaderProgram;
+GLuint SliderBoxProgram;
+GLuint VAO_slider_container;
+Shape3D *shapeTools;
+
 // CPU representation of a particle
 struct Ball{
 	glm::vec3 pos, speed;
@@ -33,6 +40,8 @@ struct Ball{
 	float cameradistance; // *Squared* distance to the camera. if dead : -1.0f
 	float radius;
 };
+
+
 
 bool checkBallCollision(const Ball& ball1, const Ball& ball2) {
     // Calculate the distance between the centers of the circles
@@ -108,11 +117,15 @@ void checkGLError(const char* functionName) {
 }
 
 float damping = 0.9f;
+float gravity = -9.81f;
 bool isDragging = false;
 double lastMouseX = 0.0;
 
-const float lowerLimit = 0.0f;  // Set your lower limit
-const float upperLimit = 1.0f;   // Set your upper limit
+const float lowerLimit_damp = 0.0f;  // Set your lower limit
+const float upperLimit_damp = 1.0f;   // Set your upper limit
+
+const float lowerLimit_grav = -10.0f;  // Set your lower limit
+const float upperLimit_grav = 0.0f;   // Set your upper limit
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -127,14 +140,32 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
     if (isDragging) {
-        double deltaX = xpos - lastMouseX;
-		damping += static_cast<float>(deltaX) * 0.01f; // Adjust the sensitivity as needed
-        if (damping < lowerLimit) {
-            damping = lowerLimit;
-        } else if (damping > upperLimit) {
-            damping = upperLimit;
-        }
-        lastMouseX = xpos;
+		float lowerLimit, upperLimit;
+		//std::cout << ypos << std::endl;;
+		if(ypos > 50) {
+			lowerLimit = lowerLimit_damp;
+			upperLimit = upperLimit_damp;
+			double deltaX = xpos - lastMouseX;
+			damping += static_cast<float>(deltaX) * 0.01f; // Adjust the sensitivity as needed
+			if (damping < lowerLimit) {
+				damping = lowerLimit;
+			} else if (damping > upperLimit) {
+				damping = upperLimit;
+			}
+			lastMouseX = xpos;
+		} else if (ypos < 50){
+			lowerLimit = lowerLimit_grav;
+			upperLimit = upperLimit_grav;
+			double deltaX = xpos - lastMouseX;
+			gravity += static_cast<float>(deltaX) * 0.01f; // Adjust the sensitivity as needed
+			if (gravity < lowerLimit) {
+				gravity = lowerLimit;
+			} else if (gravity > upperLimit) {
+				gravity = upperLimit;
+			}
+			lastMouseX = xpos;
+		}
+        
     }
 }
 
@@ -185,12 +216,18 @@ void init_slider() {
     glBindVertexArray(0);
 }
 
-void drawSlider() {
+void drawSlider(float varible, glm::vec3 startpos, float min, float max) {
     // Set the shader program
     glUseProgram(sliderShaderProgram);
 
+	if(max > 1)
+		varible /= max/2;
+
+	glm::vec3 pos = startpos;
+	pos.x = varible - pos.x - min;
+
     // Set the model matrix (for transformations)
-    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(damping-1.0f, 0.0f, 0.0f));
+    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), pos);
     glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelMatrix[0][0]);
 
     // Set the color (you can update this based on your requirements)
@@ -256,14 +293,25 @@ void drawSliderWindow() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
-	drawSlider();
+	drawSlider(damping, glm::vec3(1.0,0.0,0.0), 0, 1);
     glUseProgram(textProgram2D);
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(400), 0.0f, static_cast<float>(200));
     glUniformMatrix4fv(glGetUniformLocation(textProgram2D, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-    text->RenderText("Damping", -.9f, 0.5f, 0.01f, glm::vec3(0.5, 0.8f, 0.2f));
+	glm::mat4 projection2 = glm::ortho(0.0f, static_cast<float>(400), 0.0f, static_cast<float>(200));
+
+	std::string str = "Damping: " + std::to_string(damping);
+	str = str.substr(0, str.find(".")+3);
+    text->RenderText(str, -.99f, 0.2f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
+    glUniformMatrix4fv(glGetUniformLocation(SliderBoxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection2));
+    //shapeTools->render3DShape(SliderBoxProgram, VAO_slider_container, projection2, glm::vec3(0.0f, 0.0f, 0.0f), 12);
+
+	std::string str2 = "Gravity: " + std::to_string(gravity);
+	str2 = str2.substr(0, str.find(".")+3);
+	text->RenderText(str2, -.99f, 0.8f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
+	drawSlider(gravity, glm::vec3(0.0,0.6,0.0), 0, 20);
 
 	glfwSwapBuffers(sliderWindow);
-	glfwPollEvents();
+	glfwPollEvents();   
 }
 
 
@@ -289,10 +337,10 @@ int main() {
 
 	GLFWwindow *window = oglM->GetWindow();
 
-	Shape3D *shapeTools = Shape3D::GetInstance();
+	shapeTools = Shape3D::GetInstance();
 
 	// Create shader program
-    GLuint ShapeshaderProgram = LoadShaders( "Shaders/border.vs", "Shaders/border.fs" );
+    ShapeshaderProgram = LoadShaders( "Shaders/border.vs", "Shaders/border.fs" );
 
 	/// Vertex Array Object (VAO)
     GLuint VAO;
@@ -324,7 +372,6 @@ int main() {
     // Vertex Attribute Pointer
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
-	checkGLError("glVertexAttribPointer");
 
 	
 	GLuint VertexArrayID;
@@ -389,6 +436,28 @@ int main() {
     textProgram2D = LoadShaders( "Shaders/text.vs", "Shaders/text.fs" );
     text->initFreeType("fonts/Roboto-Regular.ttf",48);
     text->SetShaderProgram(textProgram2D);
+
+
+    SliderBoxProgram = LoadShaders( "Shaders/slider_box.vs", "Shaders/slider_box.fs" );
+
+    ////// Slider container
+    /// Vertex Array Object (VAO)
+    glGenVertexArrays(1, &VAO_slider_container);
+    glBindVertexArray(VAO_slider_container);
+	GLfloat *slide_cont_vertices = new GLfloat[4 * 3];
+
+	shapeTools->generateQuadVertices(slide_cont_vertices, 0.5f, .5f, 0.0f);
+
+    GLuint VBO_slider_box;
+    glGenBuffers(1, &VBO_slider_box);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_slider_box);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(slide_cont_vertices), slide_cont_vertices, GL_STATIC_DRAW);
+	
+
+    // Vertex Attribute Pointer
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+
 	
 	glm::vec3 halfboundsize = glm::vec3(0.65 * 28 - 2*radius, 0.5 * 28 - 2*radius, 0.0f); 
 
@@ -399,7 +468,6 @@ int main() {
 		glfwMakeContextCurrent(window);
 		// Clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
 		glEnable(GL_DEPTH_TEST);
 
     
@@ -473,7 +541,7 @@ int main() {
 			}
 
 			// Simulate simple physics : gravity only, no collisions
-			p.speed += glm::vec3(0.0f,-9.81f, 0.0f) * (float)delta * 0.5f;
+			p.speed += glm::vec3(0.0f,gravity, 0.0f) * (float)delta * 0.5f;
 			p.pos += p.speed * (float)delta;
 			p.cameradistance = glm::length2( p.pos - CameraPosition );
 
@@ -492,7 +560,7 @@ int main() {
 
 			BallCount++;
 		}
-		checkGLError("p");
+
 		glBindBuffer(GL_ARRAY_BUFFER, balls_position_buffer);
 		glBufferData(GL_ARRAY_BUFFER, maxnumBalls * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW); 
 		glBufferSubData(GL_ARRAY_BUFFER, 0, BallCount * sizeof(GLfloat) * 4, g_balls_position_size_data);
@@ -504,7 +572,6 @@ int main() {
 
         glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		checkGLError("t");
 		
 		// Use our shader
 		glUseProgram(programID);
