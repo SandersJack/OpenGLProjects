@@ -302,13 +302,15 @@ void drawSliderWindow() {
 	std::string str = "Damping: " + std::to_string(damping);
 	str = str.substr(0, str.find(".")+3);
     text->RenderText(str, -.99f, 0.2f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
-    glUniformMatrix4fv(glGetUniformLocation(SliderBoxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection2));
-    //shapeTools->render3DShape(SliderBoxProgram, VAO_slider_container, projection2, glm::vec3(0.0f, 0.0f, 0.0f), 12);
-
 	std::string str2 = "Gravity: " + std::to_string(gravity);
+
 	str2 = str2.substr(0, str.find(".")+3);
 	text->RenderText(str2, -.99f, 0.8f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
 	drawSlider(gravity, glm::vec3(0.0,0.6,0.0), 0, 20);
+
+	shapeTools->render3DShape(SliderBoxProgram, VAO_slider_container, projection2, glm::vec3(100.0f, 50.0f, 0.003f), 12, glm::vec4(.0, .0, 1.0, 1.0));
+	text->RenderText("Pause", -.77f, -0.58f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
+	checkGLError("SliderBox");
 
 	glfwSwapBuffers(sliderWindow);
 	glfwPollEvents();   
@@ -446,15 +448,24 @@ int main() {
     glBindVertexArray(VAO_slider_container);
 	GLfloat *slide_cont_vertices = new GLfloat[4 * 3];
 
-	shapeTools->generateQuadVertices(slide_cont_vertices, 0.5f, .5f, 0.0f);
+	shapeTools->generateQuadVertices(slide_cont_vertices, 5.f, 2.f, 0.0f);
+
+	GLfloat slide_vertices[12];
+	for(int i; i<12; i++){
+		slide_vertices[i] = slide_cont_vertices[i];
+	}
+
+	// Scale the rectangle by multiplying each coordinate by the scaleFactor
+	for (int i = 0; i < 12; ++i) {
+		slide_vertices[i] *= scaleFactor;
+	}
 
     GLuint VBO_slider_box;
     glGenBuffers(1, &VBO_slider_box);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_slider_box);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(slide_cont_vertices), slide_cont_vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(slide_vertices), slide_vertices, GL_STATIC_DRAW);
 	
-
-    // Vertex Attribute Pointer
+	// Vertex Attribute Pointer
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
 
@@ -480,7 +491,7 @@ int main() {
 
 		glm::mat4 ViewProjectionMatrix2 = ProjectionMatrix * ViewMatrix;
         
-		shapeTools->render3DShape(ShapeshaderProgram, VAO, ViewProjectionMatrix, glm::vec3(0.0f, 0.0f, -30.0f), 12);
+		shapeTools->render3DShape(ShapeshaderProgram, VAO, ViewProjectionMatrix, glm::vec3(0.0f, 0.0f, -30.0f), 12, glm::vec4(1.0, 1.0, 1.0, 1.0)); // White color;
 		
 		double currentTime = glfwGetTime();
 		double delta = currentTime - lastTime;
