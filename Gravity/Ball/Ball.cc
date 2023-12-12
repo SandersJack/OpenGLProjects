@@ -121,6 +121,10 @@ float gravity = -9.81f;
 bool isDragging = false;
 double lastMouseX = 0.0;
 
+bool simulationPause = false;
+bool buttonPress = false;
+bool buttonreleased = true;
+
 const float lowerLimit_damp = 0.0f;  // Set your lower limit
 const float upperLimit_damp = 1.0f;   // Set your upper limit
 
@@ -136,13 +140,21 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             isDragging = false;
         }
     }
+
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+		double xpos, ypos;
+		glfwGetCursorPos(window, &xpos, &ypos);
+		if (xpos > 30 && xpos < 170 && ypos > 120 && ypos < 180){
+			simulationPause = !simulationPause;
+		}
+	}
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
     if (isDragging) {
 		float lowerLimit, upperLimit;
-		//std::cout << ypos << std::endl;;
-		if(ypos > 50) {
+		//std::cout << xpos << " " << ypos << std::endl;
+		if(ypos > 90 && ypos < 110) {
 			lowerLimit = lowerLimit_damp;
 			upperLimit = upperLimit_damp;
 			double deltaX = xpos - lastMouseX;
@@ -153,7 +165,7 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
 				damping = upperLimit;
 			}
 			lastMouseX = xpos;
-		} else if (ypos < 50){
+		} else if (ypos > 30 && ypos < 50){
 			lowerLimit = lowerLimit_grav;
 			upperLimit = upperLimit_grav;
 			double deltaX = xpos - lastMouseX;
@@ -165,8 +177,11 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
 			}
 			lastMouseX = xpos;
 		}
-        
     }
+	if(buttonPress){
+		
+	}
+	
 }
 
 GLuint modelLocation;
@@ -308,7 +323,13 @@ void drawSliderWindow() {
 	text->RenderText(str2, -.99f, 0.8f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
 	drawSlider(gravity, glm::vec3(0.0,0.6,0.0), 0, 20);
 
-	shapeTools->render3DShape(SliderBoxProgram, VAO_slider_container, projection2, glm::vec3(100.0f, 50.0f, 0.003f), 12, glm::vec4(.0, .0, 1.0, 1.0));
+	glm::vec4 button_colour;
+	if (simulationPause)
+		button_colour = glm::vec4(1.0, .0, .0, 1.0);
+	else 
+		button_colour = glm::vec4(1.0, 1.0, 1.0, 1.0);
+
+	shapeTools->render3DShape(SliderBoxProgram, VAO_slider_container, projection2, glm::vec3(100.0f, 50.0f, 0.003f), 12, button_colour);
 	text->RenderText("Pause", -.77f, -0.58f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
 	checkGLError("SliderBox");
 
@@ -526,35 +547,36 @@ int main() {
 		for(int i=0; i<maxnumBalls; i++){
 			Ball& p = BallContainer[i];
 			
-			
-			// Check bounding box in y
-			if(abs(p.pos.y) > halfboundsize.y){
-				p.pos.y = halfboundsize.y * sgn(p.pos.y);
-				p.speed.y *= -1 * damping;
-			}
+			if(!simulationPause) {
+				// Check bounding box in y
+				if(abs(p.pos.y) > halfboundsize.y){
+					p.pos.y = halfboundsize.y * sgn(p.pos.y);
+					p.speed.y *= -1 * damping;
+				}
 
-			// Check bounding box in x
-			if(abs(p.pos.x) > (halfboundsize.x)){
-				p.pos.x = (halfboundsize.x) * sgn(p.pos.x);
-				p.speed.x *= -1 * damping;
-			}
+				// Check bounding box in x
+				if(abs(p.pos.x) > (halfboundsize.x)){
+					p.pos.x = (halfboundsize.x) * sgn(p.pos.x);
+					p.speed.x *= -1 * damping;
+				}
 
-			/// Check collsions on all other balls
-			if(true){
-				for(int t=0; t<maxnumBalls; t++){
-					if(i == t)
-						continue;
-					Ball& p2 = BallContainer[t];
-					if(checkBallCollision(p, p2)){
-						handleElasticCollision(p,p2);
+				/// Check collsions on all other balls
+				if(true){
+					for(int t=0; t<maxnumBalls; t++){
+						if(i == t)
+							continue;
+						Ball& p2 = BallContainer[t];
+						if(checkBallCollision(p, p2)){
+							handleElasticCollision(p,p2);
+						}
 					}
 				}
-			}
 
-			// Simulate simple physics : gravity only, no collisions
-			p.speed += glm::vec3(0.0f,gravity, 0.0f) * (float)delta * 0.5f;
-			p.pos += p.speed * (float)delta;
-			p.cameradistance = glm::length2( p.pos - CameraPosition );
+				// Simulate simple physics : gravity only, no collisions
+				p.speed += glm::vec3(0.0f,gravity, 0.0f) * (float)delta * 0.5f;
+				p.pos += p.speed * (float)delta;
+				p.cameradistance = glm::length2( p.pos - CameraPosition );
+			}
 
 			//std::cout << glm::length(p.pos) << std::endl;
 			// Fill the GPU buffer
