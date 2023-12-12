@@ -122,14 +122,14 @@ bool isDragging = false;
 double lastMouseX = 0.0;
 
 bool simulationPause = false;
-bool buttonPress = false;
-bool buttonreleased = true;
+bool simulatonReset = false;
 
 const float lowerLimit_damp = 0.0f;  // Set your lower limit
 const float upperLimit_damp = 1.0f;   // Set your upper limit
 
 const float lowerLimit_grav = -10.0f;  // Set your lower limit
 const float upperLimit_grav = 0.0f;   // Set your upper limit
+
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -147,6 +147,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		if (xpos > 30 && xpos < 170 && ypos > 120 && ypos < 180){
 			simulationPause = !simulationPause;
 		}
+		if (xpos > 230 && xpos < 370 && ypos > 120 && ypos < 180){
+			simulatonReset = true;
+		}
+		//std::cout << xpos << " " << ypos << std::endl;
 	}
 }
 
@@ -178,9 +182,6 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
 			lastMouseX = xpos;
 		}
     }
-	if(buttonPress){
-		
-	}
 	
 }
 
@@ -331,7 +332,15 @@ void drawSliderWindow() {
 
 	shapeTools->render3DShape(SliderBoxProgram, VAO_slider_container, projection2, glm::vec3(100.0f, 50.0f, 0.003f), 12, button_colour);
 	text->RenderText("Pause", -.77f, -0.58f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
-	checkGLError("SliderBox");
+
+	glm::vec4 reset_button_colour;
+	if (simulatonReset)
+		reset_button_colour = glm::vec4(1.0, .0, .0, 1.0);
+	else 
+		reset_button_colour = glm::vec4(1.0, 1.0, 1.0, 1.0);
+	
+	shapeTools->render3DShape(SliderBoxProgram, VAO_slider_container, projection2, glm::vec3(300.0f, 50.0f, 0.003f), 12, reset_button_colour);
+	text->RenderText("Reset", .26f, -0.58f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
 
 	glfwSwapBuffers(sliderWindow);
 	glfwPollEvents();   
@@ -519,6 +528,10 @@ int main() {
 		lastTime = currentTime;
 		
 		int newBalls = maxnumBalls;
+		if(simulatonReset){
+			spawnedBalls = 0;
+			simulatonReset = false;
+		}
 		if(spawnedBalls < maxnumBalls) {
 			for(int i=0; i<newBalls; i++){
 
