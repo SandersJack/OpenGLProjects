@@ -1,9 +1,14 @@
 #version 330 core
 
-layout(location = 0) in vec2 position;
+layout(location = 0) in vec3 position;
 
-uniform mat4 model; // Model matrix for transformations
+uniform vec3 shapePosition;
+uniform mat4 modelViewProjection;
+uniform vec4 color;
+
+out vec4 fragColor;
 
 void main() {
-    gl_Position = model * vec4(position, 0.0, 1.0);
-}
+    gl_Position = modelViewProjection * vec4(position + shapePosition, 1.0);
+    fragColor = color;
+}  

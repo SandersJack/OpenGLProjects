@@ -18,7 +18,7 @@ Shape3D::~Shape3D(){
 
 // Function to render the 3D shape
 void Shape3D::render3DShape(GLuint shaderProgram, GLuint VAO, const glm::mat4& modelViewProjection, const glm::vec3& shapePosition, 
-	GLuint vertexSize) {
+	GLuint vertexSize, const glm::vec4 &color_alpha) {
     
 	glUseProgram(shaderProgram);
 
@@ -29,6 +29,10 @@ void Shape3D::render3DShape(GLuint shaderProgram, GLuint VAO, const glm::mat4& m
     // Set the model-view-projection matrix
     GLuint mvpLocation = glGetUniformLocation(shaderProgram, "modelViewProjection");
     glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, &modelViewProjection[0][0]);
+
+    // Set the shape color and alpha
+    GLuint shapeColorLocation = glGetUniformLocation(shaderProgram, "color");
+    glUniform4fv(shapeColorLocation, 1, &color_alpha[0]);
 
     glBindVertexArray(VAO);
 

@@ -121,11 +121,15 @@ float gravity = -9.81f;
 bool isDragging = false;
 double lastMouseX = 0.0;
 
+bool simulationPause = false;
+bool simulatonReset = false;
+
 const float lowerLimit_damp = 0.0f;  // Set your lower limit
 const float upperLimit_damp = 1.0f;   // Set your upper limit
 
 const float lowerLimit_grav = -10.0f;  // Set your lower limit
 const float upperLimit_grav = 0.0f;   // Set your upper limit
+
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -136,13 +140,25 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             isDragging = false;
         }
     }
+
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+		double xpos, ypos;
+		glfwGetCursorPos(window, &xpos, &ypos);
+		if (xpos > 30 && xpos < 170 && ypos > 120 && ypos < 180){
+			simulationPause = !simulationPause;
+		}
+		if (xpos > 230 && xpos < 370 && ypos > 120 && ypos < 180){
+			simulatonReset = true;
+		}
+		//std::cout << xpos << " " << ypos << std::endl;
+	}
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
     if (isDragging) {
 		float lowerLimit, upperLimit;
-		//std::cout << ypos << std::endl;;
-		if(ypos > 50) {
+		//std::cout << xpos << " " << ypos << std::endl;
+		if(ypos > 90 && ypos < 110) {
 			lowerLimit = lowerLimit_damp;
 			upperLimit = upperLimit_damp;
 			double deltaX = xpos - lastMouseX;
@@ -153,7 +169,7 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
 				damping = upperLimit;
 			}
 			lastMouseX = xpos;
-		} else if (ypos < 50){
+		} else if (ypos > 30 && ypos < 50){
 			lowerLimit = lowerLimit_grav;
 			upperLimit = upperLimit_grav;
 			double deltaX = xpos - lastMouseX;
@@ -165,8 +181,8 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
 			}
 			lastMouseX = xpos;
 		}
-        
     }
+	
 }
 
 GLuint modelLocation;
@@ -302,13 +318,29 @@ void drawSliderWindow() {
 	std::string str = "Damping: " + std::to_string(damping);
 	str = str.substr(0, str.find(".")+3);
     text->RenderText(str, -.99f, 0.2f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
-    glUniformMatrix4fv(glGetUniformLocation(SliderBoxProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection2));
-    //shapeTools->render3DShape(SliderBoxProgram, VAO_slider_container, projection2, glm::vec3(0.0f, 0.0f, 0.0f), 12);
-
 	std::string str2 = "Gravity: " + std::to_string(gravity);
+
 	str2 = str2.substr(0, str.find(".")+3);
 	text->RenderText(str2, -.99f, 0.8f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
 	drawSlider(gravity, glm::vec3(0.0,0.6,0.0), 0, 20);
+
+	glm::vec4 button_colour;
+	if (simulationPause)
+		button_colour = glm::vec4(1.0, .0, .0, 1.0);
+	else 
+		button_colour = glm::vec4(1.0, 1.0, 1.0, 1.0);
+
+	shapeTools->render3DShape(SliderBoxProgram, VAO_slider_container, projection2, glm::vec3(100.0f, 50.0f, 0.003f), 12, button_colour);
+	text->RenderText("Pause", -.77f, -0.58f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
+
+	glm::vec4 reset_button_colour;
+	if (simulatonReset)
+		reset_button_colour = glm::vec4(1.0, .0, .0, 1.0);
+	else 
+		reset_button_colour = glm::vec4(1.0, 1.0, 1.0, 1.0);
+	
+	shapeTools->render3DShape(SliderBoxProgram, VAO_slider_container, projection2, glm::vec3(300.0f, 50.0f, 0.003f), 12, reset_button_colour);
+	text->RenderText("Reset", .26f, -0.58f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
 
 	glfwSwapBuffers(sliderWindow);
 	glfwPollEvents();   
@@ -446,15 +478,24 @@ int main() {
     glBindVertexArray(VAO_slider_container);
 	GLfloat *slide_cont_vertices = new GLfloat[4 * 3];
 
-	shapeTools->generateQuadVertices(slide_cont_vertices, 0.5f, .5f, 0.0f);
+	shapeTools->generateQuadVertices(slide_cont_vertices, 5.f, 2.f, 0.0f);
+
+	GLfloat slide_vertices[12];
+	for(int i; i<12; i++){
+		slide_vertices[i] = slide_cont_vertices[i];
+	}
+
+	// Scale the rectangle by multiplying each coordinate by the scaleFactor
+	for (int i = 0; i < 12; ++i) {
+		slide_vertices[i] *= scaleFactor;
+	}
 
     GLuint VBO_slider_box;
     glGenBuffers(1, &VBO_slider_box);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_slider_box);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(slide_cont_vertices), slide_cont_vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(slide_vertices), slide_vertices, GL_STATIC_DRAW);
 	
-
-    // Vertex Attribute Pointer
+	// Vertex Attribute Pointer
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
 
@@ -480,13 +521,17 @@ int main() {
 
 		glm::mat4 ViewProjectionMatrix2 = ProjectionMatrix * ViewMatrix;
         
-		shapeTools->render3DShape(ShapeshaderProgram, VAO, ViewProjectionMatrix, glm::vec3(0.0f, 0.0f, -30.0f), 12);
+		shapeTools->render3DShape(ShapeshaderProgram, VAO, ViewProjectionMatrix, glm::vec3(0.0f, 0.0f, -30.0f), 12, glm::vec4(1.0, 1.0, 1.0, 1.0)); // White color;
 		
 		double currentTime = glfwGetTime();
 		double delta = currentTime - lastTime;
 		lastTime = currentTime;
 		
 		int newBalls = maxnumBalls;
+		if(simulatonReset){
+			spawnedBalls = 0;
+			simulatonReset = false;
+		}
 		if(spawnedBalls < maxnumBalls) {
 			for(int i=0; i<newBalls; i++){
 
@@ -515,35 +560,36 @@ int main() {
 		for(int i=0; i<maxnumBalls; i++){
 			Ball& p = BallContainer[i];
 			
-			
-			// Check bounding box in y
-			if(abs(p.pos.y) > halfboundsize.y){
-				p.pos.y = halfboundsize.y * sgn(p.pos.y);
-				p.speed.y *= -1 * damping;
-			}
+			if(!simulationPause) {
+				// Check bounding box in y
+				if(abs(p.pos.y) > halfboundsize.y){
+					p.pos.y = halfboundsize.y * sgn(p.pos.y);
+					p.speed.y *= -1 * damping;
+				}
 
-			// Check bounding box in x
-			if(abs(p.pos.x) > (halfboundsize.x)){
-				p.pos.x = (halfboundsize.x) * sgn(p.pos.x);
-				p.speed.x *= -1 * damping;
-			}
+				// Check bounding box in x
+				if(abs(p.pos.x) > (halfboundsize.x)){
+					p.pos.x = (halfboundsize.x) * sgn(p.pos.x);
+					p.speed.x *= -1 * damping;
+				}
 
-			/// Check collsions on all other balls
-			if(true){
-				for(int t=0; t<maxnumBalls; t++){
-					if(i == t)
-						continue;
-					Ball& p2 = BallContainer[t];
-					if(checkBallCollision(p, p2)){
-						handleElasticCollision(p,p2);
+				/// Check collsions on all other balls
+				if(true){
+					for(int t=0; t<maxnumBalls; t++){
+						if(i == t)
+							continue;
+						Ball& p2 = BallContainer[t];
+						if(checkBallCollision(p, p2)){
+							handleElasticCollision(p,p2);
+						}
 					}
 				}
-			}
 
-			// Simulate simple physics : gravity only, no collisions
-			p.speed += glm::vec3(0.0f,gravity, 0.0f) * (float)delta * 0.5f;
-			p.pos += p.speed * (float)delta;
-			p.cameradistance = glm::length2( p.pos - CameraPosition );
+				// Simulate simple physics : gravity only, no collisions
+				p.speed += glm::vec3(0.0f,gravity, 0.0f) * (float)delta * 0.5f;
+				p.pos += p.speed * (float)delta;
+				p.cameradistance = glm::length2( p.pos - CameraPosition );
+			}
 
 			//std::cout << glm::length(p.pos) << std::endl;
 			// Fill the GPU buffer
