@@ -79,8 +79,8 @@ void Text2D::initFreeType(const char* fontPath, int fontSize) {
             // now store character for later use
             Character character = {
                 texture,
-                glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-                glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+                Vector2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+                Vector2(face->glyph->bitmap_left, face->glyph->bitmap_top),
                 static_cast<unsigned int>(face->glyph->advance.x)
             };
             Characters.insert(std::pair<char, Character>(c, character));
@@ -94,7 +94,7 @@ void Text2D::initFreeType(const char* fontPath, int fontSize) {
     initText();
 }
 
-void Text2D::RenderText(std::string text, float x, float y, float scale, glm::vec3 color) {
+void Text2D::RenderText(std::string text, float x, float y, float scale, Vector3 color) {
     glUseProgram(textProgram2D);
     glUniform3f(glGetUniformLocation(textProgram2D, "textColor"), color.x, color.y, color.z);
     glActiveTexture(GL_TEXTURE0);
