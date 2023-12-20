@@ -10,6 +10,10 @@ class Texture2D {
         // binds the texture as the current active GL_TEXTURE_2D texture object
         void Bind() const;
 
+        void SetInternal_Format(unsigned int val){ fInternal_Format = val;}
+        void SetImage_Format(unsigned int val){ fImage_Format = val;}
+
+        
     private:
         unsigned int fID;
         // texture image dimensions

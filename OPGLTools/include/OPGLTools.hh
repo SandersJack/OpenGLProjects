@@ -1,6 +1,7 @@
 #ifndef opglTools_HPP
 #define opglTools_HPP
 
+#include "MathGL.hh"
 
 #include "OGLManager.hh"
 #include "Shape3D.hh"
@@ -10,10 +11,11 @@
 #include "Shader.hh"
 #include "Texture2D.hh"
 
-#include "MathGL.hh"
 #include "Controls.hh"
 
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 
 #endif
