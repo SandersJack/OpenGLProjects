@@ -17,8 +17,8 @@ Shape3D::~Shape3D(){
 }
 
 // Function to render the 3D shape
-void Shape3D::render3DShape(GLuint shaderProgram, GLuint VAO, const glm::mat4& modelViewProjection, const glm::vec3& shapePosition, 
-	GLuint vertexSize, const glm::vec4 &color_alpha) {
+void Shape3D::render3DShape(GLuint shaderProgram, GLuint VAO, const Matrix4& modelViewProjection, const Vector3& shapePosition, 
+	GLuint vertexSize, const Vector4 &color_alpha) {
     
 	glUseProgram(shaderProgram);
 
@@ -28,11 +28,11 @@ void Shape3D::render3DShape(GLuint shaderProgram, GLuint VAO, const glm::mat4& m
 
     // Set the model-view-projection matrix
     GLuint mvpLocation = glGetUniformLocation(shaderProgram, "modelViewProjection");
-    glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, &modelViewProjection[0][0]);
+    glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, modelViewProjection.value_ptr());
 
     // Set the shape color and alpha
     GLuint shapeColorLocation = glGetUniformLocation(shaderProgram, "color");
-    glUniform4fv(shapeColorLocation, 1, &color_alpha[0]);
+    glUniform4fv(shapeColorLocation, 1, color_alpha.value_ptr());
 
     glBindVertexArray(VAO);
 
@@ -46,7 +46,7 @@ void Shape3D::render3DShape(GLuint shaderProgram, GLuint VAO, const glm::mat4& m
 
 void Shape3D::generateCircleVertices(GLfloat* vertices, float radius, int numPoints, float height) {
     for (int i = 0; i < numPoints; ++i) {
-        float theta = 2.0f * glm::pi<float>() * i / numPoints;
+        float theta = 2.0f * PI * i / numPoints;
         float x = radius * std::cos(theta);
         float y = radius * std::sin(theta);
         float z = height;

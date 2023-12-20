@@ -20,6 +20,13 @@ set(LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../OPGLTools/build)
 target_link_libraries(Ball PRIVATE ${LIBRARY_DIR}/libOPGLTools.a)
 # Specify the relative include directory for Controls library
 target_include_directories(Ball PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../OPGLTools/include)
+########################### MathGL ########################################
+# Specify the relative path to the Controls library build directory
+set(LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../OPGLTools/build/MathGL)
+# Link against the library
+target_link_libraries(Ball PRIVATE ${LIBRARY_DIR}/libMathGL.so)
+# Specify the relative include directory for Controls library
+target_include_directories(Ball PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../OPGLTools/MathGL/include)
 ########################### Controls ########################################
 # Specify the relative path to the Controls library build directory
 set(LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../OPGLTools/build/Controls)

@@ -13,9 +13,9 @@ Controls *Controls::GetInstance() {
 
 Controls::Controls(){
     // Initial position : on +Z
-    fPosition = glm::vec3( 0, 0, 5 ); 
+    fPosition = Vector3( 0, 0, 5 ); 
     // Initial horizontal angle : toward -Z
-    fHorizontalAngle = glm::pi<float>();
+    fHorizontalAngle = PI;
     // Initial vertical angle : none
     fVerticalAngle = 0.0f;
     // Initial Field of View
@@ -51,21 +51,21 @@ void Controls::computeMatricesFromInputs(){
 	}
 
     // Direction : Spherical coordinates to Cartesian coordinates conversion
-	glm::vec3 direction(
+	Vector3 direction(
 		cos(fVerticalAngle) * sin(fHorizontalAngle), 
 		sin(fVerticalAngle),
 		cos(fVerticalAngle) * cos(fHorizontalAngle)
 	);
 
     // Right vector
-	glm::vec3 right = glm::vec3(
+	Vector3 right = Vector3(
 		sin(fHorizontalAngle - 3.14f/2.0f), 
 		0,
 		cos(fHorizontalAngle - 3.14f/2.0f)
 	);
 
     // Up vector
-	glm::vec3 up = glm::cross( right, direction );
+	Vector3 up = right.cross(direction);
     
     // Move forward
 	if (glfwGetKey(fWindow, GLFW_KEY_UP ) == GLFW_PRESS && fEnabledUpDown){
@@ -86,10 +86,9 @@ void Controls::computeMatricesFromInputs(){
 
     float FoV = fInitialFoV;
 
-    fProjectionMatrix = glm::perspective(glm::radians(FoV), 4.0f / 3.0f, 0.1f, 100.0f);
-
-    // Camera Matrix
-    fViewMatrix       = glm::lookAt(
+    fProjectionMatrix = Perspective(ToRadians(FoV), 4.0f / 3.0f, 0.1f, 100.0f);
+	// Camera Matrix
+    fViewMatrix       = LookAt(
 								fPosition,           // Camera is here
 								fPosition+direction, // and looks here : at the same position, plus "direction"
 								up                  // Head is up (set to 0,-1,0 to look upside-down)

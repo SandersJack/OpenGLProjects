@@ -6,10 +6,7 @@
 #include <GLFW/glfw3.h>
 //GLFWwindow* window;
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/norm.hpp>
-using namespace glm;
+#include "MathGL.hh"
 
 
 class Shape3D {
@@ -20,8 +17,8 @@ class Shape3D {
 
         static Shape3D *GetInstance();
 
-        void render3DShape(GLuint shaderProgram, GLuint VAO, const glm::mat4& modelViewProjection, 
-            const glm::vec3& shapePosition, GLuint vertexSize, const glm::vec4& color_alpha);
+        void render3DShape(GLuint shaderProgram, GLuint VAO, const Matrix4& modelViewProjection, 
+            const Vector3& shapePosition, GLuint vertexSize, const Vector4& color_alpha);
 
         void generateCircleVertices(GLfloat* vertices, float radius, int numPoints, float height);
 

@@ -3,9 +3,7 @@
 
 #include <GLFW/glfw3.h> 
 
-// Include GLM
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include "MathGL.hh"
 //using namespace glm;
 
 class Controls
@@ -15,7 +13,7 @@ class Controls
 
         GLFWwindow* fWindow;
 
-        glm::vec3 fPosition; 
+        Vector3 fPosition; 
         float fHorizontalAngle;
         float fVerticalAngle;
         float fInitialFoV;
@@ -23,8 +21,8 @@ class Controls
         float fSpeed;
         float fMouseSpeed;
 
-        glm::mat4 fViewMatrix;
-        glm::mat4 fProjectionMatrix;
+        Matrix4 fViewMatrix;
+        Matrix4 fProjectionMatrix;
 
         bool fEnabledCursor = true;
         bool fEnabledUpDown = true;
@@ -38,10 +36,10 @@ class Controls
 
         void computeMatricesFromInputs();
 
-        glm::mat4 getViewMatrix(){
+        Matrix4 getViewMatrix(){
             return fViewMatrix;
         }
-        glm::mat4 getProjectionMatrix(){
+        Matrix4 getProjectionMatrix(){
             return fProjectionMatrix;
         }
 
