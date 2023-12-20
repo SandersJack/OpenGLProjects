@@ -28,11 +28,11 @@ void Shape3D::render3DShape(GLuint shaderProgram, GLuint VAO, const Matrix4& mod
 
     // Set the model-view-projection matrix
     GLuint mvpLocation = glGetUniformLocation(shaderProgram, "modelViewProjection");
-    glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, &modelViewProjection[0][0]);
+    glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, modelViewProjection.value_ptr());
 
     // Set the shape color and alpha
     GLuint shapeColorLocation = glGetUniformLocation(shaderProgram, "color");
-    glUniform4fv(shapeColorLocation, 1, &color_alpha[0]);
+    glUniform4fv(shapeColorLocation, 1, color_alpha.value_ptr());
 
     glBindVertexArray(VAO);
 

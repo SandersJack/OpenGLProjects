@@ -12,20 +12,7 @@
 #include <GLFW/glfw3.h>
 //GLFWwindow* window;
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/norm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-using namespace glm;
-
-#include "LoadShaders.hh"
-#include "Controls.hh"
-#include "OGLManager.hh"
-#include "Shape3D.hh"
-#include "Text2D.hh"
-
-
+#include "OPGLTools.hh"
 
 GLuint ShapeshaderProgram;
 GLuint SliderBoxProgram;
@@ -34,7 +21,7 @@ Shape3D *shapeTools;
 
 // CPU representation of a particle
 struct Ball{
-	glm::vec3 pos, speed;
+	Vector3 pos, speed;
 	unsigned char r,g,b,a; // Color
 	float size, angle, weight;
 	float cameradistance; // *Squared* distance to the camera. if dead : -1.0f
@@ -203,10 +190,10 @@ void init_slider() {
     colorLocation = glGetUniformLocation(sliderShaderProgram, "color");
 
     // Set initial model matrix and color uniforms
-    glm::mat4 modelMatrix = glm::mat4(1.0f);
+    Matrix4 modelMatrix = Matrix4(1.0f);
     glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelMatrix[0][0]);
 
-    glm::vec3 sliderColor = glm::vec3(0.2f, 0.2f, 0.8f);
+    Vector3 sliderColor = Vector3(0.2f, 0.2f, 0.8f);
     glUniform3fv(colorLocation, 1, &sliderColor[0]);
 
     // Set up vertex array and buffer
@@ -232,23 +219,23 @@ void init_slider() {
     glBindVertexArray(0);
 }
 
-void drawSlider(float varible, glm::vec3 startpos, float min, float max) {
+void drawSlider(float varible, Vector3 startpos, float min, float max) {
     // Set the shader program
     glUseProgram(sliderShaderProgram);
 
 	if(max > 1)
 		varible /= max/2;
 
-	glm::vec3 pos = startpos;
+	Vector3 pos = startpos;
 	pos.x = varible - pos.x - min;
 
     // Set the model matrix (for transformations)
-    glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), pos);
-    glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelMatrix[0][0]);
+    Matrix4 modelMatrix = Matrix4(1.0f).translate(pos);
+    glUniformMatrix4fv(modelLocation, 1, GL_FALSE, modelMatrix.value_ptr());
 
     // Set the color (you can update this based on your requirements)
-    glm::vec3 sliderColor = glm::vec3(0.2f, 0.2f, 0.8f);
-    glUniform3fv(colorLocation, 1, &sliderColor[0]);
+    Vector3 sliderColor = Vector3(0.2f, 0.2f, 0.8f);
+    glUniform3fv(colorLocation, 1, sliderColor.value_ptr());
 
     // Draw the slider using two triangles to form a quad
     glBindVertexArray(vao_slider);
@@ -309,38 +296,38 @@ void drawSliderWindow() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
-	drawSlider(damping, glm::vec3(1.0,0.0,0.0), 0, 1);
+	drawSlider(damping, Vector3(1.0,0.0,0.0), 0, 1);
     glUseProgram(textProgram2D);
-    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(400), 0.0f, static_cast<float>(200));
-    glUniformMatrix4fv(glGetUniformLocation(textProgram2D, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-	glm::mat4 projection2 = glm::ortho(0.0f, static_cast<float>(400), 0.0f, static_cast<float>(200));
+    Matrix4 projection = Ortho(0.0f, static_cast<float>(400), 0.0f, static_cast<float>(200));
+    glUniformMatrix4fv(glGetUniformLocation(textProgram2D, "projection"), 1, GL_FALSE, (projection).value_ptr());
+	Matrix4 projection2 = Ortho(0.0f, static_cast<float>(400), 0.0f, static_cast<float>(200));
 
 	std::string str = "Damping: " + std::to_string(damping);
 	str = str.substr(0, str.find(".")+3);
-    text->RenderText(str, -.99f, 0.2f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
+    text->RenderText(str, -.99f, 0.2f, 0.004f, Vector3(0.5, 0.8f, 0.2f));
 	std::string str2 = "Gravity: " + std::to_string(gravity);
 
 	str2 = str2.substr(0, str.find(".")+3);
-	text->RenderText(str2, -.99f, 0.8f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
-	drawSlider(gravity, glm::vec3(0.0,0.6,0.0), 0, 20);
+	text->RenderText(str2, -.99f, 0.8f, 0.004f, Vector3(0.5, 0.8f, 0.2f));
+	drawSlider(gravity, Vector3(0.0,0.6,0.0), 0, 20);
 
-	glm::vec4 button_colour;
+	Vector4 button_colour;
 	if (simulationPause)
-		button_colour = glm::vec4(1.0, .0, .0, 1.0);
+		button_colour = Vector4(1.0, .0, .0, 1.0);
 	else 
-		button_colour = glm::vec4(1.0, 1.0, 1.0, 1.0);
+		button_colour = Vector4(1.0, 1.0, 1.0, 1.0);
 
-	shapeTools->render3DShape(SliderBoxProgram, VAO_slider_container, projection2, glm::vec3(100.0f, 50.0f, 0.003f), 12, button_colour);
-	text->RenderText("Pause", -.77f, -0.58f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
+	shapeTools->render3DShape(SliderBoxProgram, VAO_slider_container, projection2, Vector3(100.0f, 50.0f, 0.003f), 12, button_colour);
+	text->RenderText("Pause", -.77f, -0.58f, 0.004f, Vector3(0.5, 0.8f, 0.2f));
 
-	glm::vec4 reset_button_colour;
+	Vector4 reset_button_colour;
 	if (simulatonReset)
-		reset_button_colour = glm::vec4(1.0, .0, .0, 1.0);
+		reset_button_colour = Vector4(1.0, .0, .0, 1.0);
 	else 
-		reset_button_colour = glm::vec4(1.0, 1.0, 1.0, 1.0);
+		reset_button_colour = Vector4(1.0, 1.0, 1.0, 1.0);
 	
-	shapeTools->render3DShape(SliderBoxProgram, VAO_slider_container, projection2, glm::vec3(300.0f, 50.0f, 0.003f), 12, reset_button_colour);
-	text->RenderText("Reset", .26f, -0.58f, 0.004f, glm::vec3(0.5, 0.8f, 0.2f));
+	shapeTools->render3DShape(SliderBoxProgram, VAO_slider_container, projection2, Vector3(300.0f, 50.0f, 0.003f), 12, reset_button_colour);
+	text->RenderText("Reset", .26f, -0.58f, 0.004f, Vector3(0.5, 0.8f, 0.2f));
 
 	glfwSwapBuffers(sliderWindow);
 	glfwPollEvents();   
@@ -500,7 +487,7 @@ int main() {
     glEnableVertexAttribArray(0);
 
 	
-	glm::vec3 halfboundsize = glm::vec3(0.65 * 28 - 2*radius, 0.5 * 28 - 2*radius, 0.0f); 
+	Vector3 halfboundsize = Vector3(0.65 * 28 - 2*radius, 0.5 * 28 - 2*radius, 0.0f); 
 
 	checkGLError("control");
 	int spawnedBalls = 0;
@@ -511,17 +498,15 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 
-    
+		checkGLError("blah");
 		control->computeMatricesFromInputs();
-		glm::mat4 ProjectionMatrix = control->getProjectionMatrix();
-		glm::mat4 ViewMatrix = control->getViewMatrix();
-
-		glm::vec3 CameraPosition(glm::inverse(ViewMatrix)[3]);
-		glm::mat4 ViewProjectionMatrix = ProjectionMatrix * ViewMatrix;
-
-		glm::mat4 ViewProjectionMatrix2 = ProjectionMatrix * ViewMatrix;
+		Matrix4 ProjectionMatrix = control->getProjectionMatrix();
+		Matrix4 ViewMatrix = control->getViewMatrix();
+		Vector3 CameraPosition((ViewMatrix.inverse())[3]);
+		Matrix4 ViewProjectionMatrix = ProjectionMatrix * ViewMatrix;
+		Matrix4 ViewProjectionMatrix2 = ProjectionMatrix * ViewMatrix;
         
-		shapeTools->render3DShape(ShapeshaderProgram, VAO, ViewProjectionMatrix, glm::vec3(0.0f, 0.0f, -30.0f), 12, glm::vec4(1.0, 1.0, 1.0, 1.0)); // White color;
+		shapeTools->render3DShape(ShapeshaderProgram, VAO, ViewProjectionMatrix, Vector3(0.0f, 0.0f, -30.0f), 12, Vector4(1.0, 1.0, 1.0, 1.0)); // White color;
 		
 		double currentTime = glfwGetTime();
 		double delta = currentTime - lastTime;
@@ -535,10 +520,10 @@ int main() {
 		if(spawnedBalls < maxnumBalls) {
 			for(int i=0; i<newBalls; i++){
 
-				glm::vec3 maindir = glm::vec3(Distribution_1010(gen), 5.0f, 0.0f);
+				Vector3 maindir = Vector3(Distribution_1010(gen), 5.0f, 0.0f);
 
 				//double rand_01 = ((double) rand() / (RAND_MAX));
-				BallContainer[i].pos = glm::vec3(Distribution_11(gen) * halfboundsize.x, Distribution_11(gen) * halfboundsize.y,-29.9f);
+				BallContainer[i].pos = Vector3(Distribution_11(gen) * halfboundsize.x, Distribution_11(gen) * halfboundsize.y,-29.9f);
 
 				BallContainer[i].speed = maindir;
 
@@ -586,9 +571,9 @@ int main() {
 				}
 
 				// Simulate simple physics : gravity only, no collisions
-				p.speed += glm::vec3(0.0f,gravity, 0.0f) * (float)delta * 0.5f;
+				p.speed += Vector3(0.0f,gravity, 0.0f) * (float)delta * 0.5f;
 				p.pos += p.speed * (float)delta;
-				p.cameradistance = glm::length2( p.pos - CameraPosition );
+				p.cameradistance = ( p.pos - CameraPosition ).Mag2();
 			}
 
 			//std::cout << glm::length(p.pos) << std::endl;
@@ -629,7 +614,7 @@ int main() {
 		glUniform3f(CameraRight_worldspace_ID, ViewMatrix[0][0], ViewMatrix[1][0], ViewMatrix[2][0]);
 		glUniform3f(CameraUp_worldspace_ID   , ViewMatrix[0][1], ViewMatrix[1][1], ViewMatrix[2][1]);
 
-        glUniformMatrix4fv(ViewProjMatrixID, 1, GL_FALSE, &ViewProjectionMatrix[0][0]);
+        glUniformMatrix4fv(ViewProjMatrixID, 1, GL_FALSE, ViewProjectionMatrix.value_ptr());
 
 		glBindVertexArray(VertexArrayID);
 

@@ -3,6 +3,9 @@
 
 #include <math.h> 
 #include <cassert>
+#include <iostream>
+
+#include "Vector4.hh"
 
 class Vector3 {
 
@@ -11,6 +14,7 @@ class Vector3 {
 
         Vector3(float _x=0, float _y=0, float _z=0): x(_x), y(_y), z(_z){}
         Vector3(const Vector3 &val): x(val.x), y(val.y), z(val.z){}
+        Vector3(const Vector4 &val): x(val.x), y(val.y), z(val.z){}
         ~Vector3() {}
 
         /// Vector Atributes
@@ -35,6 +39,14 @@ class Vector3 {
                 z /= length;
             }
             return *this;
+        }
+
+        void Print() {
+            std::cout << x << " " << y << " " << z << std::endl;
+        }
+
+        const float* value_ptr() const {
+            return &x;
         }
 
         /// Operators

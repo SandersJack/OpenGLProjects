@@ -1,5 +1,4 @@
 #include "Controls.hh"
-#include "Trigonometry.hh"
 
 #include <GLFW/glfw3.h>
 //extern GLFWwindow* window;
@@ -87,9 +86,8 @@ void Controls::computeMatricesFromInputs(){
 
     float FoV = fInitialFoV;
 
-    fProjectionMatrix = Perspective(Radians(FoV), 4.0f / 3.0f, 0.1f, 100.0f);
-
-    // Camera Matrix
+    fProjectionMatrix = Perspective(ToRadians(FoV), 4.0f / 3.0f, 0.1f, 100.0f);
+	// Camera Matrix
     fViewMatrix       = LookAt(
 								fPosition,           // Camera is here
 								fPosition+direction, // and looks here : at the same position, plus "direction"

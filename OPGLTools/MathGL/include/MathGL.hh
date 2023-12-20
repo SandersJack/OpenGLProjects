@@ -3,11 +3,14 @@
 
 #include "Constants.hh"
 #include "Trigonometry.hh"
+
+#include "Vector4.hh"
+#include "Vector3.hh"
+#include "Vector2.hh"
+
+
 #include "Matrix3.hh"
 #include "Matrix4.hh"
-#include "Vector2.hh"
-#include "Vector3.hh"
-#include "Vector4.hh"
 #include "MatrixTransform.hh"
 
 Matrix4 Ortho(float left, float right, float bottom, float top, float zNear=-1.0f, float zFar=1.0f);

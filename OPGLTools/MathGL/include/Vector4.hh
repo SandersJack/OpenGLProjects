@@ -17,6 +17,10 @@ class Vector4 {
 
         float Mag(){ return sqrt(pow(x,2) + pow(y,2) + pow(z,2) + pow(w,2));}
 
+        const float* value_ptr() const {
+            return &x;
+        }
+
         /// Operators
 
         Vector4 operator+(const Vector4 &val) const {

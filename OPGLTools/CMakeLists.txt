@@ -10,7 +10,6 @@ add_library(OPGLTools STATIC ${SOURCES})
 # Include directory for header files
 target_include_directories(OPGLTools PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 # Add the source and include directories
-# Add the source and include directories
 add_subdirectory(MathGL)
 
 # Include directory for header files

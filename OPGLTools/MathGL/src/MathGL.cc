@@ -14,26 +14,26 @@ Matrix4 Ortho(float left, float right, float bottom, float top, float zNear, flo
 
 
 Matrix4 Perspective(float fovy, float aspect, float near, float far) {
-    float tanHalfFovy = tan(Radians(fovy) / 2.0f);
+    float tanHalfFovy = tan((fovy) / 2.0f);
     float f = 1.0f / tanHalfFovy;
 
     Matrix4 result = Matrix4(f / aspect, 0.f,   0.f,                                 0.f,
                              0.f,        f,     0.f,                                 0.f,
-                             0.f,        0.f,   (far + near) / (near - far),        -1.0f,
-                             0.f,        0.f,   (2.0f * far * near) / (near - far) , 0.0f);
+                             0.f,        0.f,   (far + near) / (near - far),        (2.0f * far * near) / (near - far),
+                             0.f,        0.f,   -1.0f,                               0.0f);
 
     return result;
 }
 
 Matrix4 LookAt(const Vector3& eye, const Vector3& center, const Vector3& up) {
     Vector3 f = (center - eye).normalize(); // Forward
-    Vector3 r = (up.cross(f)).normalize(); // Right
-    Vector3 u = f.cross(r); // Up
-
-    Matrix4 result = Matrix4(r.x,         u.x,         -f.x,        0.0f,
-                             r.y,         u.y,         -f.y,        0.0f,
-                             r.z,         u.z,         -f.z,        0.0f,
-                             -r.dot(eye), -u.dot(eye), -f.dot(eye), 1.0f);
+    Vector3 r = (f.cross(up)).normalize(); // Right
+    Vector3 tmp = up;
+    Vector3 u = tmp.normalize(); //f.cross(r); // Up
+    Matrix4 result = Matrix4(r.x,         u.x,         -f.x,        -r.dot(eye),
+                             r.y,         u.y,         -f.y,        -u.dot(eye),
+                             r.z,         u.z,         -f.z,         f.dot(eye),
+                             0.0f,        0.0f,         0.0f,        1.0f);
 
     return result;
-}
+}  

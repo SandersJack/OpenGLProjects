@@ -27,7 +27,7 @@ void Text2D::initFreeType(const char* fontPath, int fontSize) {
     }
 
 	// find path to font
-    std::string font_name = "/home/jack/Code/Forces/Gravity/Ball/fonts/Roboto-Regular.ttf";
+    std::string font_name = "fonts/Roboto-Regular.ttf";
     if (font_name.empty())
     {
         std::cout << "ERROR::FREETYPE: Failed to load font_name" << std::endl;
