@@ -7,6 +7,9 @@
 #include "Text2D.hh"
 #include "LoadShaders.hh"
 
+#include "Shader.hh"
+#include "Texture2D.hh"
+
 #include "MathGL.hh"
 #include "Controls.hh"
 
