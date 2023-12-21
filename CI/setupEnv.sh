@@ -2,5 +2,5 @@
 
 echo "Installing Packages"
 
-apt-get install libgl1-mesa-dev
-apt-get install libglew-dev
+sudo apt-get install libgl1-mesa-dev
+sudo apt-get install libglew-dev
