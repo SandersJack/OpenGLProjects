@@ -1,0 +1,20 @@
+name: TestBuild
+
+on: 
+  push:
+    branches:
+      - develop
+      - feature/*
+      - bugfix/*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Run build test Script
+        working-directory: ./
+        run: ./CI/testbuild_opGLTools.sh
