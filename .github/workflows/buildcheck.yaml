@@ -21,7 +21,7 @@ jobs:
 
       - name: Run build OPGLTools
         working-directory: ./
-        run: ./CI/testbuild_opGLTools.sh
+        run: ./CI/testbuild_OPGLTools.sh
 
       - name: Run build Gravity Projects
         working-directory: ./
