@@ -1,7 +1,15 @@
 #include "GameManager.hh"
 
-GameManager::GameManager(unsigned int width, unsigned int height) :
-    fState(GAME_ACTIVE), fWidth(width), fHeight(height) {
+GameManager *GameManager::fInstance = nullptr;
+
+GameManager *GameManager::GetInstance() {
+    if(!fInstance)
+        fInstance = new GameManager();
+    return fInstance;
+}
+
+GameManager::GameManager():
+    fState(GAME_ACTIVE), fWidth(800), fHeight(600) {
 
 }
 

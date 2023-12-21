@@ -1,39 +1,39 @@
-#ifndef Vector4_HPP
-#define Vector4_HPP
+#ifndef _Vector4_HPP
+#define _Vector4_HPP
 
 #include <math.h>
 #include <cassert> 
-
-class Vector4 {
+template <typename T>
+class _Vector4 {
 
     public:
-        float x, y, z, w;
+        T x, y, z, w;
 
-        Vector4(float r[4]): x(r[0]), y(r[1]), z(r[2]), w(r[3]){}
-        Vector4(float _x=0, float _y=0, float _z=0, float _w=0): x(_x), y(_y), z(_z), w(_w){}
-        Vector4(const Vector4 &val): x(val.x), y(val.y), z(val.z), w(val.w){}
-        ~Vector4() {}
+        _Vector4(T r[4]): x(r[0]), y(r[1]), z(r[2]), w(r[3]){}
+        _Vector4(T _x=0, T _y=0, T _z=0, T _w=0): x(_x), y(_y), z(_z), w(_w){}
+        _Vector4(const _Vector4 &val): x(val.x), y(val.y), z(val.z), w(val.w){}
+        ~_Vector4() {}
 
         /// Vector Atributes
 
-        float Mag(){ return sqrt(pow(x,2) + pow(y,2) + pow(z,2) + pow(w,2));}
+        T Mag(){ return sqrt(pow(x,2) + pow(y,2) + pow(z,2) + pow(w,2));}
 
-        const float* value_ptr() const {
+        const T* value_ptr() const {
             return &x;
         }
 
         /// Operators
 
-        Vector4 operator+(const Vector4 &val) const {
-            return Vector4(x + val.x, y + val.y, z+val.z, w+val.w);
+        _Vector4 operator+(const _Vector4 &val) const {
+            return _Vector4(x + val.x, y + val.y, z+val.z, w+val.w);
         }
 
-        Vector4 operator*(float f) const {
-            return Vector4(x * f, y * f, z * f, w * f);
+        _Vector4 operator*(T f) const {
+            return _Vector4(x * f, y * f, z * f, w * f);
         }
 
         // [] operator
-        float &operator[](int i) {
+        T &operator[](int i) {
             assert(i >= 0 && i <= 3);
             switch (i) {
             case 0: return x;
@@ -45,7 +45,7 @@ class Vector4 {
         }
 
         // [] operator
-        const float &operator[](int i) const {
+        const T &operator[](int i) const {
             assert(i >= 0 && i <= 3);
             switch (i) {
             case 0: return x;
@@ -59,5 +59,8 @@ class Vector4 {
     private:
 
 };
+
+using Vector4 = _Vector4<float>;
+using iVector4 = _Vector4<int>;
 
 #endif

@@ -13,6 +13,11 @@ class Texture2D {
         void SetInternal_Format(unsigned int val){ fInternal_Format = val;}
         void SetImage_Format(unsigned int val){ fImage_Format = val;}
 
+        unsigned int GetID() {return fID;}
+        const unsigned int* value_ptr() const {
+            return &fID;
+        }
+
         
     private:
         unsigned int fID;

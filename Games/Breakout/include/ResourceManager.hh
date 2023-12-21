@@ -20,6 +20,8 @@ class ResourceManager {
 
         Texture2D LoadTextureFromFile(const char *file, bool alpha);
 
+        void Clear();
+
     private:
 
         static ResourceManager *fInstance;

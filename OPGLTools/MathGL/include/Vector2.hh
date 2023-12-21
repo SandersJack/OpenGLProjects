@@ -1,29 +1,29 @@
-#ifndef Vector2_HPP
-#define Vector2_HPP
+#ifndef _Vector2_HPP
+#define _Vector2_HPP
 
 #include <math.h> 
 
 template <typename T>
-class Vector2 {
+class _Vector2 {
 
     public:
         T x, y;
 
-        Vector2(T _x=0, T _y=0, T _z=0): x(_x), y(_y){}
+        _Vector2(T _x=0, T _y=0, T _z=0): x(_x), y(_y){}
 
-        Vector2(const Vector2 &val): x(val.x), y(val.y){}
-        ~Vector2() {}
+        _Vector2(const _Vector2 &val): x(val.x), y(val.y){}
+        ~_Vector2() {}
 
         /// Vector Atributes
 
         T Mag(){ return sqrt(pow(x,2) + pow(y,2));}
         T Mag2(){ return (pow(x,2) + pow(y,2));}
 
-        float dot(const Vector2 &v) const{  
+        float dot(const _Vector2 &v) const{  
             return x * v.x + y * v.y;
         }
 
-        Vector2 normalize() {
+        _Vector2 normalize() {
             T length = Mag();
             // Check if the length is not zero to avoid division by zero
             if (length != 0.0f) {
@@ -43,27 +43,27 @@ class Vector2 {
 
         /// Operators
 
-        Vector2 operator+(const Vector2 &val) const {
-            return Vector2(x + val.x, y + val.y);
+        _Vector2 operator+(const _Vector2 &val) const {
+            return _Vector2(x + val.x, y + val.y);
         }
 
-        Vector2 operator-(const Vector2 &val) const {
-            return Vector2(x - val.x, y - val.y);
+        _Vector2 operator-(const _Vector2 &val) const {
+            return _Vector2(x - val.x, y - val.y);
         }
 
-        Vector2 operator*(float f) const {
-            return Vector2(x * f, y * f);
+        _Vector2 operator*(float f) const {
+            return _Vector2(x * f, y * f);
         }
 
         /// _= operators
 
-        Vector2 operator+=(const Vector2 &v){
+        _Vector2 operator+=(const _Vector2 &v){
             x += v.x;
             y += v.y;
             return *this;
         }
 
-        Vector2 operator-=(const Vector2 &v){
+        _Vector2 operator-=(const _Vector2 &v){
             x -= v.x;
             y -= v.y;
             return *this;
@@ -91,5 +91,9 @@ class Vector2 {
 
     private:
 };
+
+using Vector2 = _Vector2<float>;
+using iVector2 = _Vector2<int>;
+
 
 #endif

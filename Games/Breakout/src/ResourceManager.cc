@@ -1,7 +1,8 @@
 #include "ResourceManager.hh"
 #include <GL/glew.h>
 
-#include "OPGLTools.hh"
+//#include "OPGLTools.hh"
+#include "stb_image.h"
 
 ResourceManager *ResourceManager::fInstance = nullptr;
 
@@ -47,4 +48,16 @@ Texture2D ResourceManager::LoadTextureFromFile(const char *file, bool alpha) {
     // and finally free image data
     stbi_image_free(data);
     return texture;
+}
+
+
+
+void ResourceManager::Clear()
+{
+    // (properly) delete all shaders	
+    for (auto iter : fShaders)
+        glDeleteProgram(iter.second.GetID());
+    // (properly) delete all textures
+    for (auto iter : fTextures)
+        glDeleteTextures(1, iter.second.value_ptr());
 }

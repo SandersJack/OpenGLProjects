@@ -25,6 +25,7 @@ Matrix4 Perspective(float fovy, float aspect, float near, float far) {
     return result;
 }
 
+
 Matrix4 LookAt(const Vector3& eye, const Vector3& center, const Vector3& up) {
     Vector3 f = (center - eye).normalize(); // Forward
     Vector3 r = (f.cross(up)).normalize(); // Right
