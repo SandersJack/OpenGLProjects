@@ -5,6 +5,7 @@
 #include <cassert>
 #include <iostream>
 
+#include "Vector2.hh"
 #include "Vector4.hh"
 
 class Vector3 {
@@ -13,6 +14,7 @@ class Vector3 {
         float x, y, z;
 
         Vector3(float _x=0, float _y=0, float _z=0): x(_x), y(_y), z(_z){}
+        Vector3(const Vector2<float> &val, float val_f): x(val.x), y(val.y), z(val_f){}
         Vector3(const Vector3 &val): x(val.x), y(val.y), z(val.z){}
         Vector3(const Vector4 &val): x(val.x), y(val.y), z(val.z){}
         ~Vector3() {}
