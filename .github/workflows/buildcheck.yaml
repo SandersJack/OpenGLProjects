@@ -19,6 +19,14 @@ jobs:
         working-directory: ./
         run: ./CI/setupEnv.sh
 
-      - name: Run build test Script
+      - name: Run build OPGLTools
         working-directory: ./
         run: ./CI/testbuild_opGLTools.sh
+
+      - name: Run build Gravity Projects
+        working-directory: ./
+        run: ./CI/testbuild_Gravity.sh
+      
+      - name: Run build Game Projects
+        working-directory: ./
+        run: ./CI/testbuild_Games.sh
