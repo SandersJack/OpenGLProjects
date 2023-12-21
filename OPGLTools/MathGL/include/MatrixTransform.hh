@@ -6,4 +6,6 @@
 
 Matrix4 translate(Matrix4 mat, Vector3 vec);
 
+Matrix4 Rotate(Matrix4 mat, float angle, Vector3 axis);
+
 #endif

@@ -10,8 +10,6 @@ class Matrix4 {
 
     public:
 
-        float m[4][4];
-
         Matrix4() {
             SetIdentity();
         }
@@ -22,8 +20,6 @@ class Matrix4 {
         Matrix4(float scale) {
             SetScalar(scale);
         }
-
-        /// NEEED TO CONVERT TO COLUMN MAJOR
 
         Matrix4(float m_00, float m_10, float m_20, float m_30,
                 float m_01, float m_11, float m_21, float m_31,
@@ -141,18 +137,17 @@ class Matrix4 {
         }
         /// [] Operator
 
-        Vector4 operator[](int index){
-
-            Vector4 result = Vector4(m[index][0], m[index][1], m[index][2], m[index][3]);
-            return result;
+        Vector4& operator[](int index) {
+            return m[index];
         }
 
-        const Vector4 operator[](int index) const{
-            Vector4 result = Vector4(m[index][0], m[index][1], m[index][2], m[index][3]);
-            return result;
+        const Vector4& operator[](int index) const {
+            return m[index];
         }
 
     private:
+
+        Vector4 m[4];
 
         // Helper method to calculate the minor of a 3x3 matrix
         float minor(int r0, int r1, int r2, int c0, int c1, int c2) const {
