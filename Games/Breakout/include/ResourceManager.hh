@@ -17,9 +17,10 @@ class ResourceManager {
 
         Shader LoadShader(const char * vertex_file_path,const char * fragment_file_path, std::string name);
         Texture2D LoadTexture(const char *file, bool alpha, std::string name);
-
         Texture2D LoadTextureFromFile(const char *file, bool alpha);
 
+        Shader GetShader(std::string name){ return fShaders[name];}
+        Texture2D GetTexture(std::string name){ return fTextures[name];}
         void Clear();
 
     private:

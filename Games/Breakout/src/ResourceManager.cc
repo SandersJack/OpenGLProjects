@@ -14,7 +14,6 @@ ResourceManager *ResourceManager::GetInstance() {
 
 
 ResourceManager::ResourceManager(){
-
 }
 
 Shader ResourceManager::LoadShader(const char * vertex_file_path,const char * fragment_file_path, std::string name){

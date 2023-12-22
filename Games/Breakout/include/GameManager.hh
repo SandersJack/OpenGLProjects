@@ -3,6 +3,9 @@
 
 #include "Global.hh"
 
+#include "ResourceManager.hh"
+#include "SpriteRenderer.hh"
+
 enum GameState {
     GAME_ACTIVE,
     GAME_MENU,
@@ -32,6 +35,9 @@ class GameManager {
 
     private:
         static GameManager *fInstance;
+
+        ResourceManager *fResourceManager;
+        SpriteRenderer *fSpriteRenderer;
 
         uint fWidth, fHeight;
 

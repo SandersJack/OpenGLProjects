@@ -7,14 +7,10 @@
 
 
 template <typename T>
-_Matrix4<T> Translate(_Matrix4<T> mat, Vector3 vec){
-    _Matrix4<T> transf = _Matrix4<T>(1, 0, 0, vec.x,
-                          0, 1, 0, vec.y,
-                          0, 0, 1, vec.z,
-                          0, 0, 0, 1);
-
-    return mat * transf;
-
+_Matrix4<T> Translate(_Matrix4<T> m, Vector3 v){
+    Matrix4 Result(m);
+    Result[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
+    return Result;
 };
 
 

@@ -33,6 +33,16 @@ int main(){
 	oglM->Init(SCR_WIDTH, SCR_HEIGHT, "Breakout");
 	GLFWwindow *window = oglM->GetWindow();
 
+    
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    // OpenGL configuration
+    // --------------------
+    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     /// Game Init
     gameMan = GameManager::GetInstance();
     gameMan->SetWidthHeight(SCR_WIDTH, SCR_HEIGHT);
@@ -58,10 +68,12 @@ int main(){
 
         gameMan->Update(deltaTime);
 
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         gameMan->Render();
 
         glfwSwapBuffers(window);
+
     }
 
     resourceMan->Clear();

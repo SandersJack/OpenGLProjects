@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <cassert> 
+#include <iostream>
 template <typename T>
 class _Vector4 {
 
@@ -20,6 +21,10 @@ class _Vector4 {
 
         const T* value_ptr() const {
             return &x;
+        }
+
+        void Print() {
+            std::cout << x << " " << y << " " << z << " " << w << std::endl;
         }
 
         /// Operators
