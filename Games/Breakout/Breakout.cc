@@ -21,18 +21,54 @@ ResourceManager *resourceMan;
 #include "MatrixTransform.hh"
 
 int main(){
-    Matrix4 test;
-    Matrix4 test2 = Translate(test, Vector3(0.,0.,0.));
-
 
     uint SCR_WIDTH = 800;
     uint SCR_HEIGHT = 600;
+
     /// OPENGl Window Init
+    /*
 	oglM = OGLManager::GetInstance();
-    oglM->SetWindowColour(Vector4(0.0, 0.0, 0.0, 0.0));
+    oglM->SetWindowColour(Vector4(0.0f, 0.0f, 0.4f, 0.0f));
 	oglM->Init(SCR_WIDTH, SCR_HEIGHT, "Breakout");
 	GLFWwindow *window = oglM->GetWindow();
+    */
+    if( !glfwInit() )
+	{
+		fprintf( stderr, "Failed to initialize GLFW\n" );
+		getchar();
+		exit(1);
+	}
 
+    glfwWindowHint(GLFW_SAMPLES, 4);
+	glfwWindowHint(GLFW_RESIZABLE,false);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Breakout", NULL, NULL);
+    if ( window == NULL ) {
+        fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
+		getchar();
+		glfwTerminate();
+		exit(2);
+    }
+
+	glfwMakeContextCurrent(window);
+    // Initialize GLEW
+	glewExperimental = true; // Needed for core profile
+	if (glewInit() != GLEW_OK) {
+		fprintf(stderr, "Failed to initialize GLEW\n");
+		getchar();
+		glfwTerminate();
+		exit(3);
+	}
+
+    // Make the window's context current
+    glfwMakeContextCurrent(window);
+
+    // Dark blue background
+	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
     
     glfwSetKeyCallback(window, key_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -59,6 +95,10 @@ int main(){
     float lastFrame = 0.0f;
 
     while(!glfwWindowShouldClose(window)){
+        glClear(GL_COLOR_BUFFER_BIT);
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -68,12 +108,12 @@ int main(){
 
         gameMan->Update(deltaTime);
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         gameMan->Render();
 
         glfwSwapBuffers(window);
 
+        checkGLError("Control");
     }
 
     resourceMan->Clear();

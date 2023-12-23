@@ -19,7 +19,7 @@ class SpriteRenderer {
 
         void initRenderData();
         void SetShader(Shader val){fShader = val;}
-        void DrawSprite(const Texture2D& texture, Vector2 position, Vector2 size = Vector2(10.0f, 10.0f), float rotate = 0.0f, Vector3 color = Vector3(1.0f));
+        void DrawSprite(const Texture2D& texture, Vector2 position, Vector2 size = Vector2(10.0f, 10.0f), float rotate = 0.0f, Vector4 color = Vector4(1.0f));
        
         static SpriteRenderer *GetInstance();
 
