@@ -19,7 +19,7 @@ OGLManager *OGLManager::GetInstance() {
     return fInstance;
 }
 
-OGLManager::OGLManager(){
+OGLManager::OGLManager() : fWindowResize(false), fWindowColor(Vector4(0.0f, 0.0f, 0.4f, 0.0f)){
 
 }
 
@@ -27,7 +27,7 @@ OGLManager::~OGLManager(){
 
 }
 
-void OGLManager::Init(int windowX, int windowY){
+void OGLManager::Init(int windowX, int windowY, const char* name){
 
     fWindowX = windowX;
     fWindowY = windowY;
@@ -40,14 +40,14 @@ void OGLManager::Init(int windowX, int windowY){
 	}
 
     glfwWindowHint(GLFW_SAMPLES, 4);
-	glfwWindowHint(GLFW_RESIZABLE,GL_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE,fWindowResize);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Open a window and create its OpenGL context
-	fWindow = glfwCreateWindow( fWindowX, fWindowY, "Particles", NULL, NULL);
+	fWindow = glfwCreateWindow( fWindowX, fWindowY, name, NULL, NULL);
 
     if( fWindow == NULL ){
 		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
@@ -75,7 +75,7 @@ void OGLManager::Init(int windowX, int windowY){
     //glfwSetCursorPos(fWindow, 1024/2, 768/2);
 
     // Dark blue background
-	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	glClearColor(fWindowColor.x, fWindowColor.y, fWindowColor.z, fWindowColor.w);
 
     // Enable depth test
 	glEnable(GL_DEPTH_TEST);

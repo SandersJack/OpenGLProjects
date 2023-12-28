@@ -5,6 +5,10 @@
 
 #include <GLFW/glfw3.h>
 
+#include "Vector4.hh"
+
+#include <string>
+
 
 class OGLManager {
 
@@ -14,9 +18,12 @@ class OGLManager {
 
         static OGLManager *GetInstance();
 
-        void Init(int windowX, int windowY);
+        void Init(int windowX, int windowY, const char* name="window_name");
 
         GLFWwindow* GetWindow(){ return fWindow;};
+
+        void SetWindowResize(bool val){fWindowResize = false;}
+        void SetWindowColour(Vector4 val){fWindowColor = val;}
 
     private:
 
@@ -26,6 +33,9 @@ class OGLManager {
 
         int fWindowX;
         int fWindowY;
+
+        bool fWindowResize;
+        Vector4 fWindowColor;   
 
 };
 

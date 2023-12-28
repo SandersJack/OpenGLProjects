@@ -19,8 +19,8 @@ class Text2D {
 
     struct Character {
         unsigned int TextureID;  // ID handle of the glyph texture
-        Vector2   Size;       // Size of glyph
-        Vector2   Bearing;    // Offset from baseline to left/top of glyph
+        iVector2   Size;       // Size of glyph
+        iVector2   Bearing;    // Offset from baseline to left/top of glyph
         long int Advance;    // Offset to advance to next glyph
     };
 

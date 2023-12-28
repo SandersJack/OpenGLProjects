@@ -1,37 +1,39 @@
-#ifndef Vector3_HPP
-#define Vector3_HPP
+#ifndef _Vector3_HPP
+#define _Vector3_HPP
 
 #include <math.h> 
 #include <cassert>
 #include <iostream>
 
+#include "Vector2.hh"
 #include "Vector4.hh"
-
-class Vector3 {
+template <typename T>
+class _Vector3 {
 
     public:
-        float x, y, z;
+        T x, y, z;
 
-        Vector3(float _x=0, float _y=0, float _z=0): x(_x), y(_y), z(_z){}
-        Vector3(const Vector3 &val): x(val.x), y(val.y), z(val.z){}
-        Vector3(const Vector4 &val): x(val.x), y(val.y), z(val.z){}
-        ~Vector3() {}
+        _Vector3(T _x=0, T _y=0, T _z=0): x(_x), y(_y), z(_z){}
+        _Vector3(const _Vector2<T> &val, T val_f): x(val.x), y(val.y), z(val_f){}
+        _Vector3(const _Vector3<T> &val): x(val.x), y(val.y), z(val.z){}
+        _Vector3(const _Vector4<T> &val): x(val.x), y(val.y), z(val.z){}
+        ~_Vector3() {}
 
         /// Vector Atributes
 
-        float Mag(){ return sqrt(pow(x,2) + pow(y,2) + pow(z,2));}
-        float Mag2(){ return (pow(x,2) + pow(y,2) + pow(z,2));}
+        T Mag(){ return sqrt(pow(x,2) + pow(y,2) + pow(z,2));}
+        T Mag2(){ return (pow(x,2) + pow(y,2) + pow(z,2));}
 
-        Vector3 cross(const Vector3 &v) const {
-            return Vector3(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x);
+        _Vector3 cross(const _Vector3 &v) const {
+            return _Vector3(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x);
         }
 
-        float dot(const Vector3 &v) const{  
+        T dot(const _Vector3 &v) const{  
             return x * v.x + y * v.y + z * v.z;
         }
 
-        Vector3 normalize() {
-            float length = Mag();
+        _Vector3 normalize() {
+            T length = Mag();
             // Check if the length is not zero to avoid division by zero
             if (length != 0.0f) {
                 x /= length;
@@ -45,34 +47,34 @@ class Vector3 {
             std::cout << x << " " << y << " " << z << std::endl;
         }
 
-        const float* value_ptr() const {
+        const T* value_ptr() const {
             return &x;
         }
 
         /// Operators
 
-        Vector3 operator+(const Vector3 &val) const {
-            return Vector3(x + val.x, y + val.y, z + val.z);
+        _Vector3 operator+(const _Vector3 &val) const {
+            return _Vector3(x + val.x, y + val.y, z + val.z);
         }
 
-        Vector3 operator-(const Vector3 &val) const {
-            return Vector3(x - val.x, y - val.y, z - val.z);
+        _Vector3 operator-(const _Vector3 &val) const {
+            return _Vector3(x - val.x, y - val.y, z - val.z);
         }
 
-        Vector3 operator*(float f) const {
-            return Vector3(x * f, y * f, z * f);
+        _Vector3 operator*(T f) const {
+            return _Vector3(x * f, y * f, z * f);
         }
 
         /// _= operators
 
-        Vector3 operator+=(const Vector3 &v){
+        _Vector3 operator+=(const _Vector3 &v){
             x += v.x;
             y += v.y;
             z += v.z;
             return *this;
         }
 
-        Vector3 operator-=(const Vector3 &v){
+        _Vector3 operator-=(const _Vector3 &v){
             x -= v.x;
             y -= v.y;
             z -= v.z;
@@ -80,7 +82,7 @@ class Vector3 {
         }
 
         // [] operator
-        float &operator[](int i) {
+        T &operator[](int i) {
             assert(i >= 0 && i <= 2);
             switch (i) {
             case 0: return x;
@@ -91,7 +93,7 @@ class Vector3 {
         }
 
         // [] operator
-        const float &operator[](int i) const {
+        const T &operator[](int i) const {
             assert(i >= 0 && i <= 2);
             switch (i) {
             case 0: return x;
@@ -104,5 +106,8 @@ class Vector3 {
 
     private:
 };
+
+using Vector3 = _Vector3<float>;
+using iVector3 = _Vector3<int>;
 
 #endif

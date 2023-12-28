@@ -79,8 +79,8 @@ void Text2D::initFreeType(const char* fontPath, int fontSize) {
             // now store character for later use
             Character character = {
                 texture,
-                Vector2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-                Vector2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+                iVector2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+                iVector2(face->glyph->bitmap_left, face->glyph->bitmap_top),
                 static_cast<unsigned int>(face->glyph->advance.x)
             };
             Characters.insert(std::pair<char, Character>(c, character));
