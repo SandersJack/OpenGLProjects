@@ -24,7 +24,7 @@ class Shape2D {
             const Vector2& shapePosition, GLuint vertexSize, const Vector4& color_alpha);
 
         void render2DShape(Shader shaderProgram, const Texture2D textureProgram, GLuint VAO, const Matrix4& modelViewProjection, 
-            const Vector2& shapePosition, GLuint vertexSize, const Vector4& color_alpha);
+            const Vector2& shapePosition, GLuint vertexSize, const Vector3& color_alpha);
 
         void generateQuadVertices(GLfloat* vertices, float width, float height);
 

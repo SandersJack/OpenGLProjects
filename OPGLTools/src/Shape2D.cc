@@ -46,33 +46,31 @@ void Shape2D::render2DShape(Shader shaderProgram, GLuint VAO, const Matrix4& mod
 
 // Function to render the 2D shape with texture
 void Shape2D::render2DShape(Shader shaderProgram, const Texture2D textureProgram, GLuint VAO, const Matrix4& modelViewProjection, const Vector2& shapePosition, 
-	GLuint vertexSize, const Vector4 &color_alpha) {
-    
-	shaderProgram.Use();
+	GLuint vertexSize, const Vector3 &color_alpha) {
 
-    // Set the shape position using a uniform variable
+    // Check for OpenGL errors after drawing
+    shaderProgram.Use();
     GLuint shapePositionLocation = glGetUniformLocation(shaderProgram.GetID(), "shapePosition");
     glUniform2fv(shapePositionLocation, 1, &shapePosition[0]);
 
     // Set the model-view-projection matrix
-    GLuint mvpLocation = glGetUniformLocation(shaderProgram.GetID(), "modelViewProjection");
+    GLuint mvpLocation = glGetUniformLocation(shaderProgram.GetID(), "model");
     glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, modelViewProjection.value_ptr());
 
     // Set the shape color and alpha
     GLuint shapeColorLocation = glGetUniformLocation(shaderProgram.GetID(), "color");
-    glUniform4fv(shapeColorLocation, 1, color_alpha.value_ptr());
+    glUniform3fv(shapeColorLocation, 1, color_alpha.value_ptr());
+    // Draw the slider using two triangles to form a quad
 
     glActiveTexture(GL_TEXTURE0);
     textureProgram.Bind();
-
     glBindVertexArray(VAO);
-
-    // Draw the 3D shape
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, vertexSize/4);  // Assuming a simple quad for this example
-
+    glDrawArrays(GL_TRIANGLE_FAN, 0, vertexSize/4); // Change to GL_TRIANGLE_FAN
     glBindVertexArray(0);
 
-    // Check for OpenGL errors after drawing
+    // Unset the shader program after rendering
+    glUseProgram(0);
+
 }
 
 
