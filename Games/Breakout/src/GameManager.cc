@@ -56,5 +56,5 @@ void GameManager::ProcessInput(float dt){
 void GameManager::Render(){
     const Texture2D &textureRef = fResourceManager->GetTexture("face");
     Vector3 Color = Vector3(0.2f, 0.2f, 0.8f);
-    fSpriteRenderer->DrawSprite(textureRef, Vector2(.5,.5), Vector2(0.0,0.0), 45.0, Color);
+    fSpriteRenderer->DrawSprite(textureRef, Vector2(0.,0.), Vector2(0.0,0.0), 45.0, Color);
 }
